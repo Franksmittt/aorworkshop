@@ -196,12 +196,15 @@ export interface Project {
     make: string;
     model: string;
     year: number;
+    numberPlate?: string;
     vin?: string;
     color?: string;
     mileageIn?: number;
     mileageOut?: number;
   };
-  status: 'Active' | 'Completed' | 'On Hold';
+  status: 'Active' | 'Completed' | 'On Hold' | 'Awaiting QC';
+  qcApprovedAt?: string;
+  qcApprovedBy?: string;
   holdReason?: HoldReason;
   createdAt: string;
   promisedDate?: string;

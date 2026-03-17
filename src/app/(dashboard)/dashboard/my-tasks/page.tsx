@@ -170,96 +170,103 @@ export default function TechnicianTasksPage() {
 
   const getStatusIndicator = (status: SubTask['status']) => {
     switch(status) {
-        case 'Completed': return <CheckCircle2 className="h-5 w-5 text-green-500" />;
-        case 'Awaiting Approval': return <Clock className="h-5 w-5 text-yellow-500" />;
-        default: return <Circle className="h-5 w-5 text-gray-600" />;
+        case 'Completed': return <CheckCircle2 className="h-5 w-5 text-[var(--success)]" />;
+        case 'Awaiting Approval': return <Clock className="h-5 w-5 text-[var(--warning)]" />;
+        default: return <Circle className="h-5 w-5 text-[var(--system-gray-2)]" />;
     }
-  }
+  };
 
   const getPriorityStyles = (priority: SubTask['priority']): { indicator: string; tag: string; icon: React.ReactNode } => {
     switch(priority) {
-        case 'Urgent': return { indicator: 'border-l-4 border-red-500', tag: 'bg-red-900/80 text-red-300', icon: <Flame className="h-3 w-3 mr-1.5" /> };
-        case 'High': return { indicator: 'border-l-4 border-yellow-500', tag: 'bg-yellow-900/80 text-yellow-300', icon: <AlertOctagon className="h-3 w-3 mr-1.5" /> };
+        case 'Urgent': return { indicator: 'border-l-4 border-[var(--error)]', tag: 'bg-red-100 text-red-800', icon: <Flame className="h-3 w-3 mr-1.5" /> };
+        case 'High': return { indicator: 'border-l-4 border-[var(--warning)]', tag: 'bg-amber-100 text-amber-800', icon: <AlertOctagon className="h-3 w-3 mr-1.5" /> };
         default: return { indicator: 'border-l-4 border-transparent', tag: '', icon: null };
     }
   };
 
-  if (isLoading) return <p className="text-gray-400">Loading your workshop...</p>
-  if (!user) return <p className="text-red-500">Error: Not logged in.</p>
+  if (isLoading) return <p className="text-[var(--system-gray)]">Loading your workshop…</p>;
+  if (!user) return <p className="text-[var(--error)]">Error: Not logged in.</p>;
 
   const getGreeting = () => {
     const hour = new Date().getHours();
-    if (hour < 12) return `Good Morning, ${user.name.split(' ')[0]}`;
-    if (hour < 18) return `Good Afternoon, ${user.name.split(' ')[0]}`;
-    return `Good Evening, ${user.name.split(' ')[0]}`;
-  }
+    if (hour < 12) return `Good morning, ${user.name.split(' ')[0]}`;
+    if (hour < 18) return `Good afternoon, ${user.name.split(' ')[0]}`;
+    return `Good evening, ${user.name.split(' ')[0]}`;
+  };
 
   return (
     <>
       <div>
         <div className="mb-8">
-          <h1 className="text-3xl font-bold text-white">{getGreeting()}</h1>
-          <p className="text-gray-400">Here are your tasks for today, with the highest priority items at the top.</p>
+          <h1 className="text-hero text-[var(--shark)]">{getGreeting()}</h1>
+          <p className="text-caption text-[var(--system-gray)] mt-1.5">Your tasks, with the highest priority at the top.</p>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-            <div className="bg-gray-800 border border-white/10 p-4 rounded-lg flex items-center">
-                <CheckSquare className="h-8 w-8 text-green-400 mr-4"/>
-                <div>
-                    <p className="text-2xl font-bold text-white">{performanceStats.tasksCompletedThisWeek}</p>
-                    <p className="text-sm text-gray-400">Tasks Completed (Week)</p>
-                </div>
+          <div className="card p-4 rounded-[var(--radius-lg)] flex items-center gap-4">
+            <CheckSquare className="h-8 w-8 text-[var(--success)] shrink-0" />
+            <div>
+              <p className="text-2xl font-bold text-[var(--shark)]">{performanceStats.tasksCompletedThisWeek}</p>
+              <p className="text-caption text-[var(--system-gray)]">Tasks completed (week)</p>
             </div>
-            <div className="bg-gray-800 border border-white/10 p-4 rounded-lg flex items-center">
-                <Zap className="h-8 w-8 text-yellow-400 mr-4"/>
-                <div>
-                    <p className="text-2xl font-bold text-white">{performanceStats.efficiency.toFixed(0)}%</p>
-                    <p className="text-sm text-gray-400">Efficiency vs. Estimates</p>
-                </div>
+          </div>
+          <div className="card p-4 rounded-[var(--radius-lg)] flex items-center gap-4">
+            <Zap className="h-8 w-8 text-[var(--warning)] shrink-0" />
+            <div>
+              <p className="text-2xl font-bold text-[var(--shark)]">{performanceStats.efficiency.toFixed(0)}%</p>
+              <p className="text-caption text-[var(--system-gray)]">Efficiency vs estimates</p>
             </div>
-            <div className="bg-gray-800 border border-white/10 p-4 rounded-lg flex items-center">
-                <Briefcase className="h-8 w-8 text-blue-400 mr-4"/>
-                <div>
-                    <p className="text-2xl font-bold text-white">{performanceStats.utilization.toFixed(0)}%</p>
-                    <p className="text-sm text-gray-400">Workshop Utilization</p>
-                </div>
+          </div>
+          <div className="card p-4 rounded-[var(--radius-lg)] flex items-center gap-4">
+            <Briefcase className="h-8 w-8 text-[var(--primary)] shrink-0" />
+            <div>
+              <p className="text-2xl font-bold text-[var(--shark)]">{performanceStats.utilization.toFixed(0)}%</p>
+              <p className="text-caption text-[var(--system-gray)]">Workshop utilization</p>
             </div>
+          </div>
         </div>
 
         <div className="space-y-4">
-          {myTasks.filter(t => t.status !== 'Completed').length > 0 ?
+          {myTasks.filter(t => t.status !== 'Completed').length > 0 ? (
             myTasks.filter(t => t.status !== 'Completed').map(task => {
               const priorityStyles = getPriorityStyles(task.priority);
               const parentProject = allProjects.find(p => p.id === task.projectId);
               const projectProgress = parentProject ? calculateOverallProgress(parentProject) : 0;
               return (
-                  <div key={task.id} onClick={() => handleTaskClick(task)} className={`bg-gray-800 border border-white/10 rounded-lg overflow-hidden transition-all hover:border-red-500/50 hover:bg-gray-700/50 cursor-pointer ${priorityStyles.indicator}`}>
-                      <div className="p-4 flex items-center justify-between">
-                        <div className="flex items-center">
-                            <div className="mr-4">{getStatusIndicator(task.status)}</div>
-                            <div>
-                                <p className="font-semibold text-lg text-white">{task.name}</p>
-                                <span className="text-sm text-gray-400">{task.projectName}</span>
-                            </div>
-                        </div>
-                        <div className="text-right flex items-center space-x-4">
-                            {task.priority !== 'Normal' && task.priority !== 'Low' && (
-                                <span className={`px-3 py-1 text-xs font-semibold rounded-full inline-flex items-center ${priorityStyles.tag}`}>
-                                    {priorityStyles.icon} {task.priority}
-                                </span>
-                            )}
-                            <span className={`px-3 py-1 text-xs font-medium rounded-full ${task.status === 'Awaiting Approval' ? 'bg-yellow-900/50 text-yellow-300' : 'bg-blue-900/50 text-blue-300'}`}>
-                                {task.status}
-                            </span>
-                        </div>
+                <div
+                  key={task.id}
+                  onClick={() => handleTaskClick(task)}
+                  className={`card rounded-[var(--radius-lg)] overflow-hidden transition-samsung hover:border-[var(--primary)]/50 cursor-pointer ${priorityStyles.indicator}`}
+                >
+                  <div className="p-4 flex items-center justify-between">
+                    <div className="flex items-center gap-4">
+                      <div>{getStatusIndicator(task.status)}</div>
+                      <div>
+                        <p className="font-semibold text-[var(--shark)]">{task.name}</p>
+                        <span className="text-caption text-[var(--system-gray)]">{task.projectName}</span>
                       </div>
-                      <div className="px-4 pb-2">
-                        <ProgressBar progress={projectProgress} />
-                      </div>
+                    </div>
+                    <div className="flex items-center gap-3">
+                      {task.priority !== 'Normal' && task.priority !== 'Low' && (
+                        <span className={`px-3 py-1 text-xs font-semibold rounded-full inline-flex items-center ${priorityStyles.tag}`}>
+                          {priorityStyles.icon} {task.priority}
+                        </span>
+                      )}
+                      <span className={`px-3 py-1 text-xs font-medium rounded-full ${task.status === 'Awaiting Approval' ? 'bg-amber-100 text-amber-800' : 'bg-[var(--primary)]/10 text-[var(--primary)]'}`}>
+                        {task.status}
+                      </span>
+                    </div>
                   </div>
+                  <div className="px-4 pb-3">
+                    <ProgressBar progress={projectProgress} />
+                  </div>
+                </div>
               );
-            }) : (
-            <div className="text-center py-16 bg-gray-800 rounded-lg"><p className="text-gray-500">You have no active tasks assigned.</p></div>
+            })
+          ) : (
+            <div className="card rounded-[var(--radius-lg)] text-center py-16">
+              <p className="text-[var(--system-gray)]">You have no active tasks assigned.</p>
+            </div>
           )}
         </div>
       </div>

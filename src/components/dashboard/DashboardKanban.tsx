@@ -6,6 +6,7 @@ import { useMemo } from 'react';
 import { Project, SubTask } from '@/lib/types';
 import Link from 'next/link';
 import { mockTechnicians } from '@/lib/mock-data';
+import { FITMENT_CATEGORIES } from '@/lib/fitment-categories';
 
 interface KanbanTask extends SubTask {
   projectName: string;
@@ -20,7 +21,7 @@ interface DashboardKanbanProps {
 const DashboardKanban = ({ projects }: DashboardKanbanProps) => {
   const columns = useMemo(() => {
     // Define the primary stages of work for the dashboard
-    const stages = ['Body & Paint', 'Engine & Drivetrain', 'Chassis & Suspension', 'Interior', 'Electrical & Wiring', 'Final Assembly'];
+    const stages = FITMENT_CATEGORIES.map(f => f.name);
     
     // Find all tasks that are currently 'In Progress' from active projects
     const inProgressTasks: KanbanTask[] = projects

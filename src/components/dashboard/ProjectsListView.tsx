@@ -12,10 +12,11 @@ interface ProjectsListViewProps {
 }
 
 const StatusDisplay = ({ status, holdReason }: { status: Project['status'], holdReason: Project['holdReason'] }) => {
-  const statusClasses = {
-    Active: 'bg-green-900/50 text-green-300 border border-green-500/30',
-    'On Hold': 'bg-yellow-900/50 text-yellow-300 border border-yellow-500/30',
-    Completed: 'bg-red-900/50 text-red-300 border border-red-500/30',
+  const statusClasses: Record<Project['status'], string> = {
+    Active: 'bg-[var(--success)]/10 text-green-700 border border-green-300',
+    'On Hold': 'bg-amber-100 text-amber-800 border border-amber-300',
+    'Awaiting QC': 'bg-[var(--primary)]/10 text-[var(--primary)] border border-[var(--primary)]/30',
+    Completed: 'bg-[var(--system-gray)]/10 text-[var(--shark)] border border-[var(--border)]',
   };
 
   const holdReasonIcons: { [key: string]: React.ReactElement } = {
@@ -35,42 +36,42 @@ const StatusDisplay = ({ status, holdReason }: { status: Project['status'], hold
 
 const ProjectsListView = ({ projects }: ProjectsListViewProps) => {
   return (
-    <div className="bg-gray-800 border border-white/10 rounded-lg shadow-soft overflow-hidden">
+    <div className="card rounded-[var(--radius-lg)] overflow-hidden">
       <div className="overflow-x-auto">
-        <table className="min-w-full divide-y divide-gray-700">
-          <thead className="bg-gray-900/50">
+        <table className="min-w-full divide-y divide-[var(--border-light)]">
+          <thead className="bg-[var(--athens-gray)]">
             <tr>
-              <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">Car</th>
-              <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">Customer</th>
-              <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">Status</th>
-              <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">Progress</th>
+              <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-[var(--system-gray)] uppercase tracking-wider">Vehicle</th>
+              <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-[var(--system-gray)] uppercase tracking-wider">Customer</th>
+              <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-[var(--system-gray)] uppercase tracking-wider">Status</th>
+              <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-[var(--system-gray)] uppercase tracking-wider">Progress</th>
               <th scope="col" className="relative px-6 py-3"><span className="sr-only">Actions</span></th>
             </tr>
           </thead>
-          <tbody className="bg-gray-800 divide-y divide-gray-700">
+          <tbody className="divide-y divide-[var(--border-light)]">
             {projects.map(project => {
               const progress = calculateOverallProgress(project);
               return (
-                <tr key={project.id} className="hover:bg-gray-700/50 transition-colors">
+                <tr key={project.id} className="hover:bg-[var(--athens-gray)] transition-colors">
                   <td className="px-6 py-4 whitespace-nowrap">
-                    <div className="text-sm font-medium text-white">{project.car.year} {project.car.make} {project.car.model}</div>
+                    <div className="text-sm font-medium text-[var(--shark)]">{project.car.year} {project.car.make} {project.car.model}</div>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
-                    <div className="text-sm text-gray-300">{project.customerName}</div>
+                    <div className="text-sm text-[var(--system-gray)]">{project.customerName}</div>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
                     <StatusDisplay status={project.status} holdReason={project.holdReason} />
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
-                    <div className="flex items-center">
-                      <div className="w-20 bg-gray-700 rounded-full h-1.5 mr-2">
-                        <div className="bg-red-600 h-1.5 rounded-full" style={{ width: `${progress}%` }}></div>
+                    <div className="flex items-center gap-2">
+                      <div className="w-20 bg-[var(--fill)] rounded-full h-1.5">
+                        <div className="bg-[var(--primary)] h-1.5 rounded-full transition-samsung" style={{ width: `${progress}%` }} />
                       </div>
-                      <span className="text-sm text-gray-400">{Math.round(progress)}%</span>
+                      <span className="text-sm text-[var(--system-gray)]">{Math.round(progress)}%</span>
                     </div>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                    <Link href={`/dashboard/projects/${project.id}`} className="text-red-500 hover:text-red-400">View</Link>
+                    <Link href={`/dashboard/projects/${project.id}`} className="text-[var(--primary)] hover:underline">View</Link>
                   </td>
                 </tr>
               );

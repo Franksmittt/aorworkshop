@@ -19,7 +19,8 @@ export const mockProjects: Project[] = [
   {
     id: 'hilux-2020-fitment',
     customerName: 'John Smith',
-    car: { make: 'Toyota', model: 'Hilux', year: 2020, vin: 'ABC123', mileageIn: 45000 },
+    car: { make: 'Toyota', model: 'Hilux', year: 2020, numberPlate: 'ABC 123 GP', vin: 'ABC123', mileageIn: 45000 },
+    vehicleChecklist: { mileageIn: 45000, fuelLevel: '3/4', keysReceived: true, completedAt: subDays(today, 10).toISOString(), photosOnArrival: [] },
     status: 'Active',
     createdAt: subDays(today, 10).toISOString(),
     promisedDate: addDays(today, 14).toISOString(),
@@ -30,13 +31,12 @@ export const mockProjects: Project[] = [
       { id: 'media-1', url: '/images/placeholder-vehicle.jpg', caption: 'Vehicle on arrival.', category: 'Check-in', isFeatured: true },
     ],
     categories: [
-      {
-        id: 'fit', name: 'Fitment', weight: 100,
-        subTasks: [
-          { id: 'fit1', name: 'Suspension lift kit', status: 'In Progress', priority: 'High', assignedTo: 'tech-marius', estimateHours: 8, actualHours: 4, startDate: subDays(today, 2).toISOString(), dueDate: addDays(today, 5).toISOString() },
-          { id: 'fit2', name: 'Front bumper fitment', status: 'Pending', priority: 'Normal', assignedTo: 'tech-roelof', estimateHours: 6 },
-        ]
-      }
+      { id: 'suspension', name: 'Suspension Upgrade', weight: 100, requiresQa: true, subTasks: [
+        { id: 'fit1', name: 'Suspension fitment / upgrade', status: 'In Progress', priority: 'High', assignedTo: 'tech-marius', estimateHours: 8, actualHours: 4, startDate: subDays(today, 2).toISOString(), dueDate: addDays(today, 5).toISOString() },
+      ]},
+      { id: 'bumpers', name: 'Bumpers', weight: 100, requiresQa: true, subTasks: [
+        { id: 'fit2', name: 'Front bumper fitment', status: 'Pending', priority: 'Normal', assignedTo: 'tech-roelof', estimateHours: 6 },
+      ]},
     ],
     timeline: [{ id: 't1', date: subDays(today, 10).toISOString(), update: 'Vehicle checked in. Fitment job started.', category: 'Check-in' }],
     messages: [],
@@ -45,35 +45,35 @@ export const mockProjects: Project[] = [
   {
     id: 'ranger-2022-canopy',
     customerName: 'Robert Davis',
-    car: { make: 'Ford', model: 'Ranger', year: 2022, mileageIn: 12000 },
+    car: { make: 'Ford', model: 'Ranger', year: 2022, numberPlate: 'XYZ 456 GP', mileageIn: 12000 },
+    vehicleChecklist: { mileageIn: 12000, fuelLevel: '1/2', keysReceived: true, completedAt: subDays(today, 3).toISOString() },
     status: 'Active',
     createdAt: subDays(today, 3).toISOString(),
     promisedDate: addDays(today, 7).toISOString(),
     media: [],
     categories: [
-      {
-        id: 'can', name: 'Canopy & Rack', weight: 100,
-        subTasks: [
-          { id: 'can1', name: 'Fit canopy and roof rack', status: 'Pending', priority: 'Normal', assignedTo: 'tech-roelof', estimateHours: 4 },
-        ]
-      }
+      { id: 'roof-consoles', name: 'Roof Consoles', weight: 100, requiresQa: true, subTasks: [
+        { id: 'can1', name: 'Roof console fitment', status: 'Pending', priority: 'Normal', assignedTo: 'tech-roelof', estimateHours: 4 },
+      ]},
     ],
-    timeline: [{ id: 't2', date: subDays(today, 3).toISOString(), update: 'Ranger booked for canopy and rack.', category: 'Check-in' }],
+    timeline: [{ id: 't2', date: subDays(today, 3).toISOString(), update: 'Ranger booked for roof console.', category: 'Check-in' }],
     messages: [],
     financials: { totalQuoted: 18000, totalPaid: 0, invoices: [] }
   },
   {
     id: 'jeep-2019-complete',
     customerName: 'David Chen',
-    car: { make: 'Jeep', model: 'Wrangler', year: 2019 },
+    car: { make: 'Jeep', model: 'Wrangler', year: 2019, numberPlate: 'JKP 789 GP' },
     status: 'Completed',
+    qcApprovedAt: subDays(today, 5).toISOString(),
+    qcApprovedBy: 'user-boss',
     createdAt: subDays(today, 30).toISOString(),
     promisedDate: subDays(today, 5).toISOString(),
     media: [],
     categories: [
-      { id: 'done', name: 'Completed', weight: 100, subTasks: [
-        { id: 'd1', name: 'Full fitment and accessories', status: 'Completed', priority: 'Normal', assignedTo: 'tech-marius', actualHours: 24, completedAt: subDays(today, 5).toISOString() },
-      ] }
+      { id: 'winches', name: 'Winches', weight: 100, requiresQa: true, subTasks: [
+        { id: 'd1', name: 'Winch fitment', status: 'Completed', priority: 'Normal', assignedTo: 'tech-marius', actualHours: 24, completedAt: subDays(today, 5).toISOString() },
+      ]},
     ],
     timeline: [{ id: 't3', date: subDays(today, 5).toISOString(), update: 'Job complete. Vehicle collected.', category: 'Complete' }],
     messages: [],

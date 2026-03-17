@@ -189,10 +189,27 @@ export default function WorkshopProjectPage({ params }: { params: { projectId: s
     }
   };
   
-  if (isLoading || !user) return <div className="flex items-center justify-center h-full"><p className="text-gray-400">Loading Project...</p></div>;
-  if (!project) return <div className="flex items-center justify-center h-full"><h1 className="text-2xl font-bold text-foreground">Project Not Found</h1></div>;
+  if (isLoading || !user) return <div className="flex items-center justify-center h-full"><p className="text-[var(--system-gray)]">Loading project…</p></div>;
+  if (!project) return <div className="flex items-center justify-center h-full"><h1 className="text-2xl font-bold text-[var(--shark)]">Project not found</h1></div>;
 
   const overallProgress = calculateOverallProgress(project);
+  const allTasksCompleted = project.categories.every(cat => cat.subTasks.every(t => t.status === 'Completed'));
+  const canSubmitForQc = user.role === 'Staff' && project.status === 'Active' && allTasksCompleted;
+  const canApproveQc = user.role === 'Boss' && project.status === 'Awaiting QC';
+
+  const handleSubmitForQc = () => {
+    if (!project || !canSubmitForQc) return;
+    const newProject = { ...project, status: 'Awaiting QC' as const, timeline: [{ id: `t-qc-${Date.now()}`, date: new Date().toISOString(), update: 'Job submitted for QC. Awaiting boss sign-off.', category: 'QC' }, ...project.timeline] };
+    saveProject(newProject);
+    setProject(newProject);
+  };
+
+  const handleApproveQc = () => {
+    if (!project || !user || !canApproveQc) return;
+    const newProject = { ...project, status: 'Completed' as const, qcApprovedAt: new Date().toISOString(), qcApprovedBy: user.id, timeline: [{ id: `t-qc-ok-${Date.now()}`, date: new Date().toISOString(), update: 'QC approved. Job completed.', category: 'QC' }, ...project.timeline] };
+    saveProject(newProject);
+    setProject(newProject);
+  };
 
   return (
     <>
@@ -210,7 +227,7 @@ export default function WorkshopProjectPage({ params }: { params: { projectId: s
             <div id="messages" className="scroll-mt-24"><MessagingCenter project={project} currentUserRole={user.role} onSendMessage={handleSendMessage} /></div>
             <div id="progress" className="scroll-mt-24">
               <div className="flex justify-between items-center mb-4">
-                  <h2 className="text-2xl font-bold text-foreground">Manage Progress</h2>
+                  <h2 className="text-title text-[var(--shark)]">Manage progress</h2>
                   <Button onClick={() => setIsAddMediaModalOpen(true)} variant="secondary" size="sm">
                       <Camera className="h-4 w-4 mr-2" />
                       Upload Photo
@@ -234,13 +251,20 @@ export default function WorkshopProjectPage({ params }: { params: { projectId: s
           </div>
           <div className="lg:col-span-1 space-y-8">
             <VehicleChecklistSection project={project} />
-            <div className="bg-background border border-border p-6 rounded shadow-soft space-y-6 divide-y divide-border">
-              <div><h3 className="text-xl font-bold mb-4 text-foreground">Workshop Tools</h3><AddTimelineForm project={project} onAddUpdate={handleTimelineAdd} /></div>
-              <div className="pt-6"><h3 className="text-xl font-bold mb-4 text-foreground">Manage Status</h3><ProjectStatusUpdater currentStatus={project.status} onStatusChange={handleStatusChange} /></div>
-              <div className="pt-6"><Button onClick={() => setIsDeleteModalOpen(true)} variant="outline" className="w-full">Delete Project</Button></div>
+            <div className="card border border-[var(--border-light)] p-6 rounded-[var(--radius-lg)] space-y-6 divide-y divide-[var(--border-light)]">
+              <div><h3 className="text-headline text-[var(--shark)] mb-4">Workshop tools</h3><AddTimelineForm project={project} onAddUpdate={handleTimelineAdd} /></div>
+              {(canSubmitForQc || canApproveQc) && (
+                <div className="pt-6">
+                  <h3 className="text-headline text-[var(--shark)] mb-4">Quality check</h3>
+                  {canSubmitForQc && <Button onClick={handleSubmitForQc} className="w-full">Submit for QC</Button>}
+                  {canApproveQc && <Button onClick={handleApproveQc} className="w-full">Approve & complete</Button>}
+                </div>
+              )}
+              <div className="pt-6"><h3 className="text-headline text-[var(--shark)] mb-4">Manage status</h3><ProjectStatusUpdater currentStatus={project.status} onStatusChange={handleStatusChange} /></div>
+              <div className="pt-6"><Button onClick={() => setIsDeleteModalOpen(true)} variant="destructive" className="w-full">Delete project</Button></div>
             </div>
-            <div className="bg-gray-800 border border-white/10 p-6 rounded-lg shadow-soft">
-               <h2 className="text-xl font-bold text-foreground mb-4">Project Timeline</h2>
+            <div className="card p-6 rounded-[var(--radius-lg)]">
+               <h2 className="text-headline text-[var(--shark)] mb-4">Project timeline</h2>
                <Timeline updates={project.timeline} />
             </div>
           </div>

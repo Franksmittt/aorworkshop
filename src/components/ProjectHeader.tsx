@@ -18,10 +18,11 @@ interface ProjectHeaderProps {
 const ProjectHeader = ({ project, overallProgress, onEdit }: ProjectHeaderProps) => {
   const { car, customerName, status, holdReason } = project;
 
-  const statusClasses = {
-    Active: 'bg-green-900/50 text-green-300 border border-green-500/30',
-    'On Hold': 'bg-yellow-900/50 text-yellow-300 border border-yellow-500/30',
-    Completed: 'bg-red-900/50 text-red-300 border border-red-500/30',
+  const statusClasses: Record<Project['status'], string> = {
+    Active: 'bg-[var(--success)]/10 text-[var(--success)] border border-[var(--success)]/30',
+    'On Hold': 'bg-amber-100 text-amber-800 border border-amber-300',
+    'Awaiting QC': 'bg-[var(--primary)]/10 text-[var(--primary)] border border-[var(--primary)]/30',
+    Completed: 'bg-[var(--system-gray)]/10 text-[var(--shark)] border border-[var(--border)]',
   };
 
   return (
@@ -29,15 +30,16 @@ const ProjectHeader = ({ project, overallProgress, onEdit }: ProjectHeaderProps)
       initial={{ opacity: 0, y: -20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.5 }}
-      className="bg-gray-900/50 backdrop-blur-sm border border-white/10 shadow-large rounded-lg p-6 md:p-8 mb-12"
+      className="card rounded-[var(--radius-lg)] p-6 md:p-8 mb-8"
     >
       <div className="flex flex-col md:flex-row justify-between items-start mb-6">
         <div>
-          <h1 className="text-3xl md:text-4xl font-bold text-white">
+          <h1 className="text-hero text-[var(--shark)]">
             {car.year} {car.make} {car.model}
+            {car.numberPlate && <span className="text-title text-[var(--system-gray)] font-normal ml-2">— {car.numberPlate}</span>}
           </h1>
-          <p className="text-lg text-gray-400">
-            Project for: <span className="font-semibold text-gray-200">{customerName}</span>
+          <p className="text-body text-[var(--system-gray)] mt-1">
+            Customer: <span className="font-semibold text-[var(--shark)]">{customerName}</span>
           </p>
         </div>
         <div className="flex items-center space-x-4 mt-4 md:mt-0">
@@ -46,7 +48,7 @@ const ProjectHeader = ({ project, overallProgress, onEdit }: ProjectHeaderProps)
               {status}
             </div>
             {status === 'On Hold' && holdReason && (
-              <p className="text-xs text-yellow-300 mt-1">{holdReason}</p>
+              <p className="text-xs text-amber-700 mt-1">{holdReason}</p>
             )}
           </div>
           {onEdit && (
@@ -65,10 +67,10 @@ const ProjectHeader = ({ project, overallProgress, onEdit }: ProjectHeaderProps)
         </div>
       </div>
  
-       <div>
-         <div className="flex justify-between items-center mb-2">
-          <span className="text-sm font-medium text-gray-300">Overall Progress</span>
-          <span className="text-lg font-bold text-red-500">{Math.round(overallProgress)}%</span>
+      <div>
+        <div className="flex justify-between items-center mb-2">
+          <span className="text-sm font-medium text-[var(--system-gray)]">Overall progress</span>
+          <span className="text-lg font-bold text-[var(--primary)]">{Math.round(overallProgress)}%</span>
         </div>
         <ProgressBar progress={overallProgress} />
       </div>
