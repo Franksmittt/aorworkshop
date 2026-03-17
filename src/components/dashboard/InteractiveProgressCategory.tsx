@@ -16,10 +16,11 @@ interface InteractiveProgressCategoryProps {
   onTaskAssign: (taskId:string, categoryId: string, techId: string) => void;
   onToggleApproval: (taskId: string, categoryId: string) => void;
   onQaStatusChange: (categoryId: string, qaPassed: boolean) => void;
-  onAddPartClick: (taskId: string, categoryId: string) => void; // <-- NEW PROP
+  onAddPartClick: (taskId: string, categoryId: string) => void;
+  showAddPart?: boolean;
 }
 
-const InteractiveProgressCategory = ({ category, technicians, onTaskToggle, onTaskAssign, onToggleApproval, onQaStatusChange, onAddPartClick }: InteractiveProgressCategoryProps) => {
+const InteractiveProgressCategory = ({ category, technicians, onTaskToggle, onTaskAssign, onToggleApproval, onQaStatusChange, onAddPartClick, showAddPart = true }: InteractiveProgressCategoryProps) => {
   const [isOpen, setIsOpen] = useState(true);
   const completedTasks = category.subTasks.filter(task => task.status === 'Completed').length;
   const totalTasks = category.subTasks.length;
@@ -101,9 +102,11 @@ const InteractiveProgressCategory = ({ category, technicians, onTaskToggle, onTa
                       <div className="pl-8 pt-2">
                         <div className="flex items-center justify-between">
                           <h4 className="text-xs font-semibold text-gray-400 uppercase tracking-wider flex items-center"><Wrench className="h-3 w-3 mr-2" />Parts</h4>
-                          <button onClick={() => onAddPartClick(task.id, category.id)} className="flex items-center text-xs text-blue-400 hover:text-blue-300">
-                            <PlusCircle className="h-3 w-3 mr-1"/> Add Part
-                          </button>
+                          {showAddPart && (
+                            <button onClick={() => onAddPartClick(task.id, category.id)} className="flex items-center text-xs text-blue-400 hover:text-blue-300">
+                              <PlusCircle className="h-3 w-3 mr-1"/> Add Part
+                            </button>
+                          )}
                         </div>
                         {task.parts && task.parts.length > 0 ? (
                           <ul className="mt-2 space-y-1">

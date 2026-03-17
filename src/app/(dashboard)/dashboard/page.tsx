@@ -11,51 +11,65 @@ import TechnicianLiveFeed from '@/components/dashboard/TechnicianLiveFeed';
 import CashFlowGauge from '@/components/dashboard/CashFlowGauge';
 import ShipmentsTracker from '@/components/dashboard/ShipmentsTracker';
 import LowStockAlerts from '@/components/dashboard/LowStockAlerts';
+import { useAuth } from '@/app/AuthContext';
+import Link from 'next/link';
+import { Calendar } from 'lucide-react';
 
 export default function DashboardPage() {
+  const { user } = useAuth();
   const projects = getProjects();
   const shifts = getShifts();
+  const isBoss = user?.role === 'Boss';
 
   return (
     <div className="bento-grid">
-      {/* Viewing Area — hero + primary info (top 1/3 feel) */}
       <header className="mb-2">
         <h1 className="text-hero text-[var(--shark)] tracking-tight">
           Welcome back
         </h1>
         <p className="text-caption text-[var(--system-gray)] mt-1.5 max-w-xl">
-          Workshop overview. KPIs, active jobs, and live activity at a glance.
+          {isBoss ? 'Workshop overview, financials, and live activity.' : 'Your tasks, active jobs, and calendar at a glance.'}
         </p>
       </header>
 
-      {/* Bento Layer 1: KPI row — four squircle cards, 24px gutter */}
       <KeyPerformanceIndicators projects={projects} shifts={shifts} />
 
-      {/* Bento Layer 2: Critical action — two equal modules */}
       <section className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <PendingApprovals projects={projects} />
+        {isBoss && <PendingApprovals projects={projects} />}
         <BlockedProjects projects={projects} />
       </section>
 
-      {/* Bento Layer 3: Kanban (2/3) + Cash flow (1/3) */}
       <section className="grid grid-cols-1 xl:grid-cols-3 gap-6">
         <div className="xl:col-span-2">
           <DashboardKanban projects={projects} />
         </div>
-        <div className="xl:col-span-1 flex flex-col gap-6">
-          <CashFlowGauge />
-        </div>
+        {isBoss ? (
+          <div className="xl:col-span-1 flex flex-col gap-6">
+            <CashFlowGauge />
+          </div>
+        ) : (
+          <div className="xl:col-span-1">
+            <Link href="/dashboard/calendar" className="card rounded-[var(--radius-lg)] p-6 flex items-center gap-4 hover:shadow-soft transition-samsung block">
+              <Calendar className="h-10 w-10 text-[var(--primary)] shrink-0" />
+              <div>
+                <h3 className="text-headline text-[var(--shark)]">Calendar</h3>
+                <p className="text-caption text-[var(--system-gray)] mt-0.5">What’s in workshop & coming in</p>
+              </div>
+            </Link>
+          </div>
+        )}
       </section>
 
-      {/* Bento Layer 4: Live feed (2/3) + Shipments & Stock (1/3) */}
       <section className="grid grid-cols-1 xl:grid-cols-3 gap-6">
-        <div className="xl:col-span-2">
+        <div className={isBoss ? 'xl:col-span-2' : 'xl:col-span-3'}>
           <TechnicianLiveFeed projects={projects} />
         </div>
-        <div className="xl:col-span-1 flex flex-col gap-6">
-          <ShipmentsTracker />
-          <LowStockAlerts />
-        </div>
+        {isBoss && (
+          <div className="xl:col-span-1 flex flex-col gap-6">
+            <ShipmentsTracker />
+            <LowStockAlerts />
+          </div>
+        )}
       </section>
     </div>
   );

@@ -196,6 +196,7 @@ export default function WorkshopProjectPage({ params }: { params: { projectId: s
   const allTasksCompleted = project.categories.every(cat => cat.subTasks.every(t => t.status === 'Completed'));
   const canSubmitForQc = user.role === 'Staff' && project.status === 'Active' && allTasksCompleted;
   const canApproveQc = user.role === 'Boss' && project.status === 'Awaiting QC';
+  const isBoss = user.role === 'Boss';
 
   const handleSubmitForQc = () => {
     if (!project || !canSubmitForQc) return;
@@ -213,17 +214,17 @@ export default function WorkshopProjectPage({ params }: { params: { projectId: s
 
   return (
     <>
-      <EditProjectModal isOpen={isEditModalOpen} onClose={() => setIsEditModalOpen(false)} onSave={handleSaveEdits} project={project} />
-      <ConfirmationModal isOpen={isDeleteModalOpen} onClose={() => setIsDeleteModalOpen(false)} onConfirm={handleDelete} title="Delete Project" message={`Are you sure you want to permanently delete the ${project.car.year} ${project.car.make} ${project.car.model} project? This action cannot be undone.`} />
-      <AddInvoiceModal isOpen={isInvoiceModalOpen} onClose={() => setIsInvoiceModalOpen(false)} onSave={handleInvoiceAdd} />
-      <AddPartFromInventoryModal isOpen={isAddPartModalOpen} onClose={() => setIsAddPartModalOpen(false)} onSave={handleAddPartToTask} />
+      {isBoss && <EditProjectModal isOpen={isEditModalOpen} onClose={() => setIsEditModalOpen(false)} onSave={handleSaveEdits} project={project} />}
+      {isBoss && <ConfirmationModal isOpen={isDeleteModalOpen} onClose={() => setIsDeleteModalOpen(false)} onConfirm={handleDelete} title="Delete Project" message={`Are you sure you want to permanently delete the ${project.car.year} ${project.car.make} ${project.car.model} project? This action cannot be undone.`} />}
+      {isBoss && <AddInvoiceModal isOpen={isInvoiceModalOpen} onClose={() => setIsInvoiceModalOpen(false)} onSave={handleInvoiceAdd} />}
+      {isBoss && <AddPartFromInventoryModal isOpen={isAddPartModalOpen} onClose={() => setIsAddPartModalOpen(false)} onSave={handleAddPartToTask} />}
       <AddMediaModal isOpen={isAddMediaModalOpen} onClose={() => setIsAddMediaModalOpen(false)} onSave={handleAddMedia} project={project} />
 
       <div>
-        <ProjectHeader project={project} overallProgress={overallProgress} onEdit={() => setIsEditModalOpen(true)} />
+        <ProjectHeader project={project} overallProgress={overallProgress} onEdit={isBoss ? () => setIsEditModalOpen(true) : undefined} />
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           <div className="lg:col-span-2 space-y-8">
-            <div id="financials" className="scroll-mt-24"><FinancialsPanel project={project} onMarkAsPaid={handleMarkAsPaid} onAddInvoiceClick={() => setIsInvoiceModalOpen(true)} /></div>
+            {isBoss && <div id="financials" className="scroll-mt-24"><FinancialsPanel project={project} onMarkAsPaid={handleMarkAsPaid} onAddInvoiceClick={() => setIsInvoiceModalOpen(true)} /></div>}
             <div id="messages" className="scroll-mt-24"><MessagingCenter project={project} currentUserRole={user.role} onSendMessage={handleSendMessage} /></div>
             <div id="progress" className="scroll-mt-24">
               <div className="flex justify-between items-center mb-4">
@@ -235,8 +236,8 @@ export default function WorkshopProjectPage({ params }: { params: { projectId: s
               </div>
               <div className="space-y-6">
                 {project.categories.map(category => (
-                  <InteractiveProgressCategory 
-                    key={category.id} 
+                  <InteractiveProgressCategory
+                    key={category.id}
                     category={category}
                     technicians={technicians}
                     onTaskToggle={handleTaskStatusChange}
@@ -244,6 +245,7 @@ export default function WorkshopProjectPage({ params }: { params: { projectId: s
                     onToggleApproval={handleToggleApproval}
                     onQaStatusChange={handleQaStatusChange}
                     onAddPartClick={handleAddPartClick}
+                    showAddPart={isBoss}
                   />
                 ))}
               </div>
@@ -261,7 +263,7 @@ export default function WorkshopProjectPage({ params }: { params: { projectId: s
                 </div>
               )}
               <div className="pt-6"><h3 className="text-headline text-[var(--shark)] mb-4">Manage status</h3><ProjectStatusUpdater currentStatus={project.status} onStatusChange={handleStatusChange} /></div>
-              <div className="pt-6"><Button onClick={() => setIsDeleteModalOpen(true)} variant="destructive" className="w-full">Delete project</Button></div>
+              {isBoss && <div className="pt-6"><Button onClick={() => setIsDeleteModalOpen(true)} variant="destructive" className="w-full">Delete project</Button></div>}
             </div>
             <div className="card p-6 rounded-[var(--radius-lg)]">
                <h2 className="text-headline text-[var(--shark)] mb-4">Project timeline</h2>
