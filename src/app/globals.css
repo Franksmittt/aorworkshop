@@ -1,27 +1,32 @@
 @import "tailwindcss";
 
 /* =============================================================================
-   APPLE + SAMSUNG MERGED DESIGN SYSTEM — Absolute Offroad
-   Apple: whitespace, SF-style typography, neutral palette, Bento grid, luxury minimalism
-   Samsung: Digital Blue primary, squircle feel, clear hierarchy, One UI motion
+   APPLE x SAMSUNG DESIGN SYSTEM — Absolute Offroad Workshop Portal
+   Apple: engineered minimalism, strict hierarchy, Bento grids, Athens Gray
+   Samsung: One UI ergonomics, high-contrast accents, squircle geometry
    ============================================================================= */
 
 :root {
-  /* Apple neutrals */
+  /* ---- HIGH-CONTRAST MINIMALIST PALETTE ---- */
+  /* Backgrounds: Athens Gray main app; White for elevated cards only */
   --white: #FFFFFF;
   --black: #000000;
-  --athens-gray: #F5F5F7;        /* Apple standard section background */
-  --shark: #1D1D1F;             /* Primary text, high contrast */
+  --athens-gray: #F5F5F7;       /* Main application background — reduces eye strain */
+  --shark: #1D1D1F;             /* Primary text, bold headers, depth */
   --system-gray: #8E8E93;       /* Secondary text, captions */
   --system-gray-2: #636366;
   --system-gray-3: #48484A;
   --separator: #C6C6C8;
   --fill: #E5E5EA;
 
-  /* Samsung primary (digital-friendly) */
-  --primary: #0057B8;           /* Samsung Digital Blue — CTAs, links, active */
+  /* Interactive / Accents — Samsung Digital Blue */
+  --primary: #0057B8;           /* CTAs, active states, focus rings */
   --primary-hover: #004494;
-  --primary-deep: #1428A0;      /* Corporate blue for emphasis */
+  --primary-deep: #1428A0;
+
+  /* Destructive — Samsung Monza */
+  --destructive: #E4002B;       /* Destructive actions */
+  --destructive-hover: #C40026;
 
   /* Semantic */
   --background: var(--white);
@@ -30,18 +35,17 @@
   --foreground-secondary: var(--system-gray);
   --border: #D2D2D7;
   --border-light: #E8E8ED;
-
-  /* Accent (Samsung illustrative — energy without clutter) */
-  --accent: var(--primary);
   --success: #34C759;
   --warning: #FF9500;
   --error: #FF3B30;
+  --accent: var(--primary);
 }
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
   --color-primary: var(--primary);
+  --color-destructive: var(--destructive);
   --color-athens: var(--athens-gray);
   --color-shark: var(--shark);
   --color-system-gray: var(--system-gray);
@@ -49,49 +53,51 @@
   --font-sans: var(--font-inter), -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
   --font-mono: ui-monospace, monospace;
 
-  /* Apple-style subtle shadows */
+  /* Multi-layered shadows — floating glassmorphism for cards */
   --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.06);
   --shadow-soft: 0 2px 12px rgba(0, 0, 0, 0.06), 0 4px 20px rgba(0, 0, 0, 0.04);
   --shadow-medium: 0 4px 20px rgba(0, 0, 0, 0.08), 0 8px 32px rgba(0, 0, 0, 0.06);
   --shadow-large: 0 12px 48px rgba(0, 0, 0, 0.1);
+  --shadow-glass: 0 4px 24px rgba(0, 0, 0, 0.06), 0 1px 3px rgba(0, 0, 0, 0.04);
 
-  /* Spacing: 8px base, Bento-style gutters */
+  /* Bento grid: uniform gutters (24px) */
   --space-unit: 8px;
   --gutter: 24px;
   --gutter-lg: 32px;
+  --bento-gap: 24px;
   --container-max: 1024px;
   --container-wide: 1280px;
 
-  /* Squircle-friendly radius (Apple + Samsung) */
+  /* SQUIRCLE — superellipse-style radius (smooth continuous curvature) */
   --radius-sm: 8px;
   --radius-md: 12px;
-  --radius-lg: 16px;
-  --radius-xl: 20px;
+  --radius-lg: 20px;
+  --radius-xl: 24px;
 
-  /* Motion: Apple cubic-bezier + Samsung duration */
+  /* Motion: One UI Basic Path / Apple Spring */
   --ease-apple: cubic-bezier(0.25, 0.1, 0.25, 1);
-  --ease-samsung: cubic-bezier(0.22, 0.25, 0, 1);
+  --ease-samsung: cubic-bezier(0.22, 0.25, 0, 1);  /* Start fast, momentum, settle smooth */
   --duration-fast: 200ms;
   --duration-normal: 350ms;
   --duration-slow: 500ms;
 }
 
-/* Typography hierarchy — Apple scale + Samsung clarity */
+/* ---- TYPOGRAPHY — Inter with Apple dynamic tracking ---- */
 body {
   background: var(--background-secondary);
   color: var(--foreground);
   font-family: var(--font-sans);
   font-size: 17px;
-  line-height: 1.47059;
+  line-height: 1.47;
   font-weight: 400;
   letter-spacing: -0.022em;
   -webkit-font-smoothing: antialiased;
 }
 
-/* Headlines: massive scale, tight tracking */
+/* Headers: heavy weight, tight tracking, massive scale contrast */
 h1, .text-hero {
   font-size: clamp(2rem, 5vw, 3.5rem);
-  font-weight: 600;
+  font-weight: 700;
   letter-spacing: -0.025em;
   line-height: 1.1;
   color: var(--shark);
@@ -102,12 +108,14 @@ h2, .text-title {
   font-weight: 600;
   letter-spacing: -0.022em;
   line-height: 1.2;
+  color: var(--shark);
 }
 
 h3, .text-headline {
   font-size: 1.25rem;
   font-weight: 600;
   letter-spacing: -0.02em;
+  color: var(--shark);
 }
 
 h4, .text-subhead {
@@ -116,10 +124,9 @@ h4, .text-subhead {
   color: var(--shark);
 }
 
-/* Body & captions */
 .text-body {
   font-size: 17px;
-  line-height: 1.47059;
+  line-height: 1.47;
   color: var(--foreground);
 }
 
@@ -129,7 +136,7 @@ h4, .text-subhead {
   color: var(--system-gray);
 }
 
-/* Layout utilities */
+/* ---- LAYOUT — Bento + One UI ---- */
 .container-content {
   max-width: var(--container-max);
   margin-left: auto;
@@ -146,29 +153,43 @@ h4, .text-subhead {
   padding-right: var(--gutter);
 }
 
-/* Card: Bento-style, squircle radius */
+/* Bento grid: masonry-style uniform gutters */
+.bento-grid {
+  display: grid;
+  gap: var(--bento-gap);
+}
+
+/* ---- CARD: Squircle + floating glassmorphism ---- */
 .card {
   background: var(--white);
   border-radius: var(--radius-lg);
   border: 1px solid var(--border-light);
-  box-shadow: var(--shadow-sm);
+  box-shadow: var(--shadow-sm), 0 2px 8px rgba(0, 0, 0, 0.03);
   overflow: hidden;
-  transition: box-shadow var(--duration-normal) var(--ease-apple),
-              border-color var(--duration-normal) var(--ease-apple);
+  transition: box-shadow var(--duration-normal) var(--ease-samsung),
+              border-color var(--duration-normal) var(--ease-samsung),
+              transform var(--duration-fast) var(--ease-samsung);
 }
 
 .card:hover {
-  box-shadow: var(--shadow-soft);
+  box-shadow: var(--shadow-soft), 0 8px 24px rgba(0, 0, 0, 0.04);
   border-color: var(--border);
 }
 
-/* Section background alternate */
 .section-alt {
   background: var(--athens-gray);
 }
 
 .section-white {
   background: var(--white);
+}
+
+/* ---- TRANSITIONS — custom cubic-bezier ---- */
+.transition-samsung {
+  transition-timing-function: var(--ease-samsung);
+}
+.transition-apple {
+  transition-timing-function: var(--ease-apple);
 }
 
 html {
@@ -181,7 +202,6 @@ html {
   }
 }
 
-/* Grid pattern — very subtle, Apple-like */
 .bg-grid-pattern {
   background-image:
     linear-gradient(rgba(0, 0, 0, 0.03) 1px, transparent 1px),
@@ -193,7 +213,7 @@ html {
   text-wrap: balance;
 }
 
-/* Focus: Samsung Blue ring */
+/* Focus: Samsung Digital Blue ring */
 .focus-ring {
   outline: none;
 }
@@ -202,7 +222,7 @@ html {
   outline-offset: 2px;
 }
 
-/* Legacy compatibility */
+/* Legacy / compatibility */
 .color-diesel { color: var(--shark); }
 .color-copper { color: var(--system-gray); }
 .bg-diesel { background-color: var(--shark); }

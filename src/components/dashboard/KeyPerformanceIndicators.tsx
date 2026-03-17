@@ -58,7 +58,7 @@ const KeyPerformanceIndicators = ({ projects, shifts }: KeyPerformanceIndicators
   }, [projects, shifts]);
 
   return (
-    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
       <KpiDial title="Revenue (MTD)" value={stats.revenueMTD} Icon={DollarSign} colorClass="text-green-600" animationDelay={0.1} />
       <KpiDial title="Workshop Utilization" value={stats.utilization} Icon={BarChart3} colorClass="text-[var(--primary)]" animationDelay={0.2} />
       <KpiDial title="On-Time Delivery" value={stats.onTimeDelivery} Icon={CheckCircle} colorClass="text-amber-600" animationDelay={0.3} />

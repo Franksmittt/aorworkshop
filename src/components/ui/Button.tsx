@@ -4,7 +4,7 @@ import React, { ReactNode } from 'react';
 
 interface ButtonProps {
   children: ReactNode;
-  variant?: 'primary' | 'secondary' | 'outline' | 'ghost';
+  variant?: 'primary' | 'secondary' | 'outline' | 'ghost' | 'destructive';
   size?: 'sm' | 'md' | 'lg';
   href?: string;
   onClick?: () => void;
@@ -23,8 +23,9 @@ const Button = ({
   disabled = false,
   type = 'button',
 }: ButtonProps) => {
+  /* Squircle radius + One UI motion (cubic-bezier 0.22, 0.25, 0, 1) */
   const base =
-    'inline-flex items-center justify-center font-semibold transition-all duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--primary)] focus-visible:ring-offset-2 rounded-[var(--radius-md)]';
+    'inline-flex items-center justify-center font-semibold focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--primary)] focus-visible:ring-offset-2 rounded-[var(--radius-md)] transition-all duration-300 transition-samsung';
 
   const variants = {
     primary:
@@ -35,12 +36,14 @@ const Button = ({
       'border-2 border-[var(--primary)] text-[var(--primary)] bg-transparent hover:bg-[var(--primary)] hover:text-white',
     ghost:
       'text-[var(--shark)] hover:bg-[var(--athens-gray)]',
+    destructive:
+      'bg-[var(--destructive)] text-white hover:bg-[var(--destructive-hover)] active:scale-[0.98] shadow-[var(--shadow-sm)] focus-visible:ring-[var(--destructive)]',
   };
 
   const sizes = {
-    sm: 'px-4 py-2 text-sm',
+    sm: 'px-4 py-2 text-sm rounded-[var(--radius-sm)]',
     md: 'px-6 py-3 text-base',
-    lg: 'px-8 py-4 text-lg',
+    lg: 'px-8 py-4 text-lg rounded-[var(--radius-lg)]',
   };
 
   const classes = `${base} ${variants[variant]} ${sizes[size]} ${className} ${disabled ? 'opacity-50 cursor-not-allowed pointer-events-none' : ''}`;

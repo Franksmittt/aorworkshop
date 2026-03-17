@@ -16,7 +16,7 @@ const KpiDial = ({ title, value, Icon, colorClass, animationDelay }: KpiDialProp
     <motion.div
       initial={{ opacity: 0, y: 12 }}
       animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.35, delay: animationDelay, ease: [0.25, 0.1, 0.25, 1] }}
+      transition={{ duration: 0.35, delay: animationDelay, ease: [0.22, 0.25, 0, 1] }}
       className="card p-6 flex flex-col justify-between min-h-[120px]"
     >
       <div className="flex justify-between items-center">
