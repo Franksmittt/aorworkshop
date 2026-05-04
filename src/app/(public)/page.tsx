@@ -28,7 +28,7 @@ export default function Home() {
     if (user?.role === 'Boss') {
       router.push('/dashboard');
     } else {
-      router.push('/dashboard/my-tasks');
+      router.push('/dashboard/projects');
     }
   };
 

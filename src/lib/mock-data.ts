@@ -84,7 +84,6 @@ export const mockProjects: Project[] = [
             status: 'Pending',
             priority: 'High',
             progressWeight: 10,
-            assignedTo: 'tech-marius',
             estimateHours: 6,
           },
           {
@@ -93,7 +92,6 @@ export const mockProjects: Project[] = [
             status: 'Pending',
             priority: 'High',
             progressWeight: 5,
-            assignedTo: 'tech-jovan',
             estimateHours: 4,
           },
           {
@@ -102,7 +100,6 @@ export const mockProjects: Project[] = [
             status: 'Pending',
             priority: 'Normal',
             progressWeight: 3,
-            assignedTo: 'tech-marius',
             estimateHours: 2,
           },
           {
@@ -111,7 +108,6 @@ export const mockProjects: Project[] = [
             status: 'Pending',
             priority: 'Normal',
             progressWeight: 2,
-            assignedTo: 'tech-jovan',
             estimateHours: 2,
           },
         ],
@@ -120,7 +116,7 @@ export const mockProjects: Project[] = [
         id: 'lc79-fitment',
         name: 'Fitment — new kit & bumpers',
         weight: 80,
-        requiresQa: true,
+        requiresQa: false,
         subTasks: [
           {
             id: 'lc79-f-1',
@@ -128,7 +124,6 @@ export const mockProjects: Project[] = [
             status: 'Pending',
             priority: 'High',
             progressWeight: 22,
-            assignedTo: 'tech-marius',
             estimateHours: 10,
           },
           {
@@ -137,7 +132,6 @@ export const mockProjects: Project[] = [
             status: 'Pending',
             priority: 'High',
             progressWeight: 10,
-            assignedTo: 'tech-jovan',
             estimateHours: 4,
           },
           {
@@ -146,7 +140,6 @@ export const mockProjects: Project[] = [
             status: 'Pending',
             priority: 'High',
             progressWeight: 24,
-            assignedTo: 'tech-marius',
             estimateHours: 12,
           },
           {
@@ -155,7 +148,6 @@ export const mockProjects: Project[] = [
             status: 'Pending',
             priority: 'Normal',
             progressWeight: 8,
-            assignedTo: 'tech-jovan',
             estimateHours: 3,
           },
           {
@@ -164,7 +156,6 @@ export const mockProjects: Project[] = [
             status: 'Pending',
             priority: 'Normal',
             progressWeight: 8,
-            assignedTo: 'tech-marius',
             estimateHours: 5,
           },
           {
@@ -173,7 +164,6 @@ export const mockProjects: Project[] = [
             status: 'Pending',
             priority: 'Normal',
             progressWeight: 8,
-            assignedTo: 'tech-jovan',
             estimateHours: 5,
           },
         ],

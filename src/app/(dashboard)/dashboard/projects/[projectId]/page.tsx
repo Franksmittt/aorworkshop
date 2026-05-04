@@ -4,8 +4,8 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
-import { getProjectById, updateProject, deleteProject, updateCategoryQaStatus, addMediaToProject, getTechnicians } from '@/lib/data-service';
-import { Project, TimelineUpdate, Technician, Message, SubTask, Media } from '@/lib/types';
+import { getProjectById, updateProject, deleteProject, addMediaToProject } from '@/lib/data-service';
+import { Project, TimelineUpdate, SubTask, Media } from '@/lib/types';
 import ProjectHeader from '@/components/ProjectHeader';
 import InteractiveProgressCategory from '@/components/dashboard/InteractiveProgressCategory';
 import AddTimelineForm from '@/components/dashboard/AddTimelineForm';
@@ -15,11 +15,21 @@ import Button from '@/components/ui/Button';
 import ProjectStatusUpdater from '@/components/dashboard/ProjectStatusUpdater';
 import Timeline from '@/components/Timeline';
 import { calculateOverallProgress } from '@/lib/utils';
-import MessagingCenter from '@/components/dashboard/MessagingCenter';
 import { useAuth } from '@/app/AuthContext';
 import AddMediaModal from '@/components/dashboard/AddMediaModal';
 import VehicleChecklistSection from '@/components/dashboard/VehicleChecklistSection';
 import { Camera } from 'lucide-react';
+
+/** Simple progress cycle for this test build (no client-approval step). */
+const STATUS_CYCLE: SubTask['status'][] = ['Pending', 'In Progress', 'Completed'];
+
+function nextTaskStatus(current: SubTask['status']): SubTask['status'] {
+  let i = STATUS_CYCLE.indexOf(current);
+  if (i === -1) {
+    i = current === 'Awaiting Approval' ? 1 : 0;
+  }
+  return STATUS_CYCLE[(i + 1) % STATUS_CYCLE.length];
+}
 
 export default function WorkshopProjectPage({ params }: { params: { projectId: string } }) {
   const router = useRouter();
@@ -29,7 +39,6 @@ export default function WorkshopProjectPage({ params }: { params: { projectId: s
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [isAddMediaModalOpen, setIsAddMediaModalOpen] = useState(false);
-  const [technicians, setTechnicians] = useState<Technician[]>([]);
 
   const fetchProject = useCallback(() => {
     const foundProject = getProjectById(params.projectId);
@@ -38,7 +47,6 @@ export default function WorkshopProjectPage({ params }: { params: { projectId: s
 
   useEffect(() => {
     fetchProject();
-    setTechnicians(getTechnicians());
     setIsLoading(false);
   }, [params.projectId, fetchProject]);
 
@@ -52,17 +60,6 @@ export default function WorkshopProjectPage({ params }: { params: { projectId: s
     fetchProject();
   };
 
-  const handleQaStatusChange = useCallback(
-    (categoryId: string, qaPassed: boolean) => {
-      if (!project) return;
-      const updatedProject = updateCategoryQaStatus(project.id, categoryId, qaPassed);
-      if (updatedProject) {
-        setProject(updatedProject);
-      }
-    },
-    [project],
-  );
-
   const handleTaskStatusChange = (taskId: string, categoryId: string) => {
     setProject((currentProject) => {
       if (!currentProject) return null;
@@ -74,10 +71,7 @@ export default function WorkshopProjectPage({ params }: { params: { projectId: s
             ...cat,
             subTasks: cat.subTasks.map((task) => {
               if (task.id !== taskId) return task;
-              const statusCycle: SubTask['status'][] = ['Pending', 'In Progress', 'Awaiting Approval', 'Completed'];
-              const currentIndex = statusCycle.indexOf(task.status);
-              const nextIndex = (currentIndex + 1) % statusCycle.length;
-              const nextStatus = statusCycle[nextIndex];
+              const nextStatus = nextTaskStatus(task.status);
               const nextTask: SubTask = { ...task, status: nextStatus };
               if (nextStatus === 'Completed') {
                 nextTask.completedAt = new Date().toISOString();
@@ -89,64 +83,6 @@ export default function WorkshopProjectPage({ params }: { params: { projectId: s
           };
         }),
       };
-      saveProject(newProject);
-      return newProject;
-    });
-  };
-
-  const handleToggleApproval = (taskId: string, categoryId: string) => {
-    setProject((currentProject) => {
-      if (!currentProject) return null;
-      const newProject = {
-        ...currentProject,
-        categories: currentProject.categories.map((cat) =>
-          cat.id === categoryId
-            ? {
-                ...cat,
-                subTasks: cat.subTasks.map((task) =>
-                  task.id === taskId ? { ...task, requiresClientApproval: !task.requiresClientApproval } : task,
-                ),
-              }
-            : cat,
-        ),
-      };
-      saveProject(newProject);
-      return newProject;
-    });
-  };
-
-  const handleTaskAssign = (taskId: string, categoryId: string, techId: string) => {
-    setProject((currentProject) => {
-      if (!currentProject) return null;
-      const newProject = {
-        ...currentProject,
-        categories: currentProject.categories.map((cat) =>
-          cat.id === categoryId
-            ? {
-                ...cat,
-                subTasks: cat.subTasks.map((task) =>
-                  task.id === taskId ? { ...task, assignedTo: techId || undefined } : task,
-                ),
-              }
-            : cat,
-        ),
-      };
-      saveProject(newProject);
-      return newProject;
-    });
-  };
-
-  const handleSendMessage = (message: Omit<Message, 'id' | 'createdAt' | 'authorRole'>) => {
-    if (!user) return;
-    setProject((currentProject) => {
-      if (!currentProject) return null;
-      const newMessage: Message = {
-        ...message,
-        id: `msg-${Date.now()}`,
-        createdAt: new Date().toISOString(),
-        authorRole: user.role,
-      };
-      const newProject = { ...currentProject, messages: [...currentProject.messages, newMessage] };
       saveProject(newProject);
       return newProject;
     });
@@ -218,50 +154,7 @@ export default function WorkshopProjectPage({ params }: { params: { projectId: s
     );
 
   const overallProgress = calculateOverallProgress(project);
-  const allTasksCompleted = project.categories.every((cat) => cat.subTasks.every((t) => t.status === 'Completed'));
-  const canSubmitForQc = user.role === 'Staff' && project.status === 'Active' && allTasksCompleted;
-  const canApproveQc = user.role === 'Boss' && project.status === 'Awaiting QC';
   const isBoss = user.role === 'Boss';
-
-  const handleSubmitForQc = () => {
-    if (!project || !canSubmitForQc) return;
-    const newProject = {
-      ...project,
-      status: 'Awaiting QC' as const,
-      timeline: [
-        {
-          id: `t-qc-${Date.now()}`,
-          date: new Date().toISOString(),
-          update: 'Job submitted for QC. Awaiting boss sign-off.',
-          category: 'QC',
-        },
-        ...project.timeline,
-      ],
-    };
-    saveProject(newProject);
-    setProject(newProject);
-  };
-
-  const handleApproveQc = () => {
-    if (!project || !user || !canApproveQc) return;
-    const newProject = {
-      ...project,
-      status: 'Completed' as const,
-      qcApprovedAt: new Date().toISOString(),
-      qcApprovedBy: user.id,
-      timeline: [
-        {
-          id: `t-qc-ok-${Date.now()}`,
-          date: new Date().toISOString(),
-          update: 'QC approved. Job completed.',
-          category: 'QC',
-        },
-        ...project.timeline,
-      ],
-    };
-    saveProject(newProject);
-    setProject(newProject);
-  };
 
   return (
     <>
@@ -283,31 +176,25 @@ export default function WorkshopProjectPage({ params }: { params: { projectId: s
         <ProjectHeader project={project} overallProgress={overallProgress} onEdit={isBoss ? () => setIsEditModalOpen(true) : undefined} />
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           <div className="lg:col-span-2 space-y-8">
-            <div id="messages" className="scroll-mt-24">
-              <MessagingCenter project={project} currentUserRole={user.role} onSendMessage={handleSendMessage} />
-            </div>
             <div id="progress" className="scroll-mt-24">
               <div className="flex justify-between items-center mb-4">
-                <h2 className="text-title text-[var(--shark)]">Manage progress</h2>
+                <h2 className="text-title text-[var(--shark)]">Build progress</h2>
                 <Button onClick={() => setIsAddMediaModalOpen(true)} variant="secondary" size="sm">
                   <Camera className="h-4 w-4 mr-2" />
                   Upload Photo
                 </Button>
               </div>
               <p className="text-caption text-[var(--system-gray)] mb-4">
-                Each step has a share of the job (total 100%). Tap a task to cycle status; when it is <strong>Completed</strong>, that share
-                moves the overall bar. Use photos and timeline for proof and timing.
+                Tap a step to move it: <strong>Pending</strong> → <strong>In progress</strong> → <strong>Done</strong>. Each step adds its
+                share to the bar (total 100%). Use photos and the timeline to log time and proof — no task assignment or money in this test
+                run.
               </p>
               <div className="space-y-6">
                 {project.categories.map((category) => (
                   <InteractiveProgressCategory
                     key={category.id}
                     category={category}
-                    technicians={technicians}
                     onTaskToggle={handleTaskStatusChange}
-                    onTaskAssign={handleTaskAssign}
-                    onToggleApproval={handleToggleApproval}
-                    onQaStatusChange={handleQaStatusChange}
                     showAddPart={false}
                   />
                 ))}
@@ -318,26 +205,11 @@ export default function WorkshopProjectPage({ params }: { params: { projectId: s
             <VehicleChecklistSection project={project} />
             <div className="card border border-[var(--border-light)] p-6 rounded-[var(--radius-lg)] space-y-6 divide-y divide-[var(--border-light)]">
               <div>
-                <h3 className="text-headline text-[var(--shark)] mb-4">Workshop tools</h3>
+                <h3 className="text-headline text-[var(--shark)] mb-4">Timeline notes</h3>
                 <AddTimelineForm project={project} onAddUpdate={handleTimelineAdd} />
               </div>
-              {(canSubmitForQc || canApproveQc) && (
-                <div className="pt-6">
-                  <h3 className="text-headline text-[var(--shark)] mb-4">Quality check</h3>
-                  {canSubmitForQc && (
-                    <Button onClick={handleSubmitForQc} className="w-full">
-                      Submit for QC
-                    </Button>
-                  )}
-                  {canApproveQc && (
-                    <Button onClick={handleApproveQc} className="w-full">
-                      Approve & complete
-                    </Button>
-                  )}
-                </div>
-              )}
               <div className="pt-6">
-                <h3 className="text-headline text-[var(--shark)] mb-4">Manage status</h3>
+                <h3 className="text-headline text-[var(--shark)] mb-4">Job status</h3>
                 <ProjectStatusUpdater currentStatus={project.status} onStatusChange={handleStatusChange} />
               </div>
               {isBoss && (

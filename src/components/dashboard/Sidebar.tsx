@@ -3,7 +3,7 @@
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import {
-  Home, Car, Users, Wrench, Package, MessageSquare, Settings, X, LogOut, RefreshCw, Calendar,
+  Home, Car, Package, MessageSquare, Settings, X, LogOut, RefreshCw, Calendar,
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useAuth } from '@/app/AuthContext';
@@ -21,8 +21,6 @@ const Sidebar = ({ isOpen, onClose }: SidebarProps) => {
   const allNavItems = [
     { name: 'Dashboard', href: '/dashboard', icon: Home, roles: ['Boss', 'Staff'] },
     { name: 'Jobs', href: '/dashboard/projects', icon: Car, roles: ['Boss', 'Staff'] },
-    { name: 'My Tasks', href: '/dashboard/my-tasks', icon: Wrench, roles: ['Staff'] },
-    { name: 'Assign Tasks', href: '/dashboard/projects', icon: Users, roles: ['Boss'] },
     { name: 'Calendar', href: '/dashboard/calendar', icon: Calendar, roles: ['Boss', 'Staff'] },
     { name: 'Media & Photos', href: '/dashboard/media', icon: MessageSquare, roles: ['Boss', 'Staff'] },
     { name: 'Inventory', href: '/dashboard/inventory', icon: Package, roles: ['Boss'] },
