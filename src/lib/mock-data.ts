@@ -28,6 +28,9 @@ const epr042gpBookInPhotoUrls = epr042gpBookInMedia.map((m) => m.url);
 /** 4 May 2026, 13:40 SAST — rear left stripped; fit started */
 const REAR_LEFT_PROGRESS_AT = '2026-05-04T11:40:00.000Z';
 
+/** 4 May 2026, 16:00 SAST — full rear suspension fitted */
+const REAR_SUSPENSION_COMPLETE_AT = '2026-05-04T14:00:00.000Z';
+
 const REAR_LEFT_PHOTO_COUNT = 7;
 const rearLeftProgressMedia: Media[] = Array.from({ length: REAR_LEFT_PHOTO_COUNT }, (_, i) => {
   const n = i + 1;
@@ -99,12 +102,12 @@ export const mockProjects: Project[] = [
           {
             id: 'lc79-s-1',
             name: 'Strip rear suspension (leaf springs, shackles, bushes, old shocks)',
-            status: 'In Progress',
+            status: 'Completed',
             priority: 'High',
             progressWeight: 10,
-            progressFraction: 0.5,
             estimateHours: 6,
             startDate: REAR_LEFT_PROGRESS_AT,
+            completedAt: REAR_SUSPENSION_COMPLETE_AT,
           },
           {
             id: 'lc79-s-2',
@@ -141,18 +144,20 @@ export const mockProjects: Project[] = [
           {
             id: 'lc79-f-1',
             name: 'Fit rear leaf springs, shackles & bushes',
-            status: 'Pending',
+            status: 'Completed',
             priority: 'High',
             progressWeight: 22,
             estimateHours: 10,
+            completedAt: REAR_SUSPENSION_COMPLETE_AT,
           },
           {
             id: 'lc79-f-2',
             name: 'Fit rear EFS Elite shocks',
-            status: 'Pending',
+            status: 'Completed',
             priority: 'High',
             progressWeight: 10,
             estimateHours: 4,
+            completedAt: REAR_SUSPENSION_COMPLETE_AT,
           },
           {
             id: 'lc79-f-3',
@@ -190,6 +195,13 @@ export const mockProjects: Project[] = [
       },
     ],
     timeline: [
+      {
+        id: 'tl-epr042gp-3',
+        date: REAR_SUSPENSION_COMPLETE_AT,
+        update:
+          '16:00 — Rear suspension fully in: new leaf springs, shackles & bushes fitted and rear EFS Elite shocks installed/torqued. Rear strip + rear suspension fitment milestone complete.',
+        category: 'Progress',
+      },
       {
         id: 'tl-epr042gp-2',
         date: REAR_LEFT_PROGRESS_AT,
