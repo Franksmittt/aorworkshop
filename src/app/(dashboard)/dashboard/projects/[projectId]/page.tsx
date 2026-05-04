@@ -185,9 +185,9 @@ export default function WorkshopProjectPage({ params }: { params: { projectId: s
                 </Button>
               </div>
               <p className="text-caption text-[var(--system-gray)] mb-4">
-                Tap a step to move it: <strong>Pending</strong> → <strong>In progress</strong> → <strong>Done</strong>. Each step adds its
-                share to the bar (total 100%). Use photos and the timeline to log time and proof — no task assignment or money in this test
-                run.
+                Tap a step: <strong>Pending</strong> → <strong>In progress</strong> → <strong>Done</strong>. <strong>Done</strong> adds the
+                full step share to the bar; for work in progress we store a <strong>fraction of that step</strong> in data (e.g. half of rear
+                strip = half of that step&apos;s %). Photos + timeline = proof and timing.
               </p>
               <div className="space-y-6">
                 {project.categories.map((category) => (

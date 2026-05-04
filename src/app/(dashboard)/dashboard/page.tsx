@@ -2,80 +2,61 @@
 
 'use client';
 
-import { getProjects, getShifts } from '@/lib/data-service';
-import KeyPerformanceIndicators from '@/components/dashboard/KeyPerformanceIndicators';
-import BlockedProjects from '@/components/dashboard/BlockedProjects';
-import PendingApprovals from '@/components/dashboard/PendingApprovals';
-import DashboardKanban from '@/components/dashboard/DashboardKanban';
-import TechnicianLiveFeed from '@/components/dashboard/TechnicianLiveFeed';
-import ShipmentsTracker from '@/components/dashboard/ShipmentsTracker';
-import LowStockAlerts from '@/components/dashboard/LowStockAlerts';
-import { useAuth } from '@/app/AuthContext';
 import Link from 'next/link';
-import { Calendar, Camera } from 'lucide-react';
+import { getProjectById } from '@/lib/data-service';
+import { calculateOverallProgress } from '@/lib/utils';
+import ProgressBar from '@/components/ui/ProgressBar';
+import { useAuth } from '@/app/AuthContext';
+import { Camera, Car } from 'lucide-react';
+
+const BUILD_PROJECT_ID = 'lc79-epr042gp';
 
 export default function DashboardPage() {
   const { user } = useAuth();
-  const projects = getProjects();
-  const shifts = getShifts();
-  const isBoss = user?.role === 'Boss';
+  const project = getProjectById(BUILD_PROJECT_ID);
+  const progress = project ? calculateOverallProgress(project) : 0;
 
   return (
-    <div className="bento-grid">
-      <header className="mb-2">
-        <h1 className="text-hero text-[var(--shark)] tracking-tight">
-          Welcome back
-        </h1>
-        <p className="text-caption text-[var(--system-gray)] mt-1.5 max-w-xl">
-          {isBoss ? 'Workshop overview, job progress, and live activity.' : 'Your tasks, active jobs, and calendar at a glance.'}
+    <div className="max-w-2xl mx-auto space-y-8">
+      <header>
+        <h1 className="text-hero text-[var(--shark)] tracking-tight">LC79 build</h1>
+        <p className="text-caption text-[var(--system-gray)] mt-1.5">
+          {user?.role === 'Boss' ? 'Cobra Fire · EPR042GP — single job tracker.' : 'Track progress and photos for this vehicle.'}
         </p>
       </header>
 
-      <KeyPerformanceIndicators projects={projects} shifts={shifts} />
-
-      <section className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {isBoss && <PendingApprovals projects={projects} />}
-        <BlockedProjects projects={projects} />
-      </section>
-
-      <section className="grid grid-cols-1 xl:grid-cols-3 gap-6">
-        <div className="xl:col-span-2">
-          <DashboardKanban projects={projects} />
-        </div>
-        {isBoss ? (
-          <div className="xl:col-span-1 flex flex-col gap-6">
-            <Link href="/dashboard/media" className="card rounded-[var(--radius-lg)] p-6 flex items-center gap-4 hover:shadow-soft transition-samsung block">
-              <Camera className="h-10 w-10 text-[var(--primary)] shrink-0" />
-              <div>
-                <h3 className="text-headline text-[var(--shark)]">Media &amp; photos</h3>
-                <p className="text-caption text-[var(--system-gray)] mt-0.5">Progress shots for the job</p>
-              </div>
+      {project ? (
+        <div className="card rounded-[var(--radius-lg)] p-6 md:p-8 border border-[var(--border-light)]">
+          <div className="flex items-start justify-between gap-4 mb-4">
+            <div>
+              <h2 className="text-headline text-[var(--shark)]">
+                {project.car.year} {project.car.make} {project.car.model}
+              </h2>
+              <p className="text-caption text-[var(--system-gray)] mt-1">{project.customerName} · {project.car.numberPlate}</p>
+            </div>
+            <span className="text-2xl font-bold text-[var(--primary)] shrink-0">{Math.round(progress)}%</span>
+          </div>
+          <ProgressBar progress={progress} />
+          <div className="mt-6 flex flex-col sm:flex-row gap-3">
+            <Link
+              href={`/dashboard/projects/${BUILD_PROJECT_ID}`}
+              className="inline-flex items-center justify-center gap-2 rounded-[var(--radius-md)] bg-[var(--primary)] text-white px-5 py-3 text-sm font-semibold hover:opacity-90 transition-opacity"
+            >
+              <Car className="h-5 w-5" />
+              Open build progress
+            </Link>
+            <Link
+              href="/dashboard/media"
+              className="inline-flex items-center justify-center gap-2 rounded-[var(--radius-md)] border border-[var(--border-light)] bg-white px-5 py-3 text-sm font-semibold text-[var(--shark)] hover:bg-[var(--athens-gray)] transition-colors"
+            >
+              <Camera className="h-5 w-5 text-[var(--primary)]" />
+              Media &amp; photos
             </Link>
           </div>
-        ) : (
-          <div className="xl:col-span-1">
-            <Link href="/dashboard/calendar" className="card rounded-[var(--radius-lg)] p-6 flex items-center gap-4 hover:shadow-soft transition-samsung block">
-              <Calendar className="h-10 w-10 text-[var(--primary)] shrink-0" />
-              <div>
-                <h3 className="text-headline text-[var(--shark)]">Calendar</h3>
-                <p className="text-caption text-[var(--system-gray)] mt-0.5">What’s in workshop & coming in</p>
-              </div>
-            </Link>
-          </div>
-        )}
-      </section>
-
-      <section className="grid grid-cols-1 xl:grid-cols-3 gap-6">
-        <div className={isBoss ? 'xl:col-span-2' : 'xl:col-span-3'}>
-          <TechnicianLiveFeed projects={projects} />
         </div>
-        {isBoss && (
-          <div className="xl:col-span-1 flex flex-col gap-6">
-            <ShipmentsTracker />
-            <LowStockAlerts />
-          </div>
-        )}
-      </section>
+      ) : (
+        <p className="text-caption text-[var(--system-gray)]">Project data not found. Use Reset in the sidebar, then reload.</p>
+      )}
     </div>
   );
 }

@@ -1,10 +1,11 @@
 'use client';
 
+import Link from 'next/link';
 import { Menu } from 'lucide-react';
 import ClockInOut from './ClockInOut';
-import UniversalSearch from './UniversalSearch';
-import NotificationsCenter from './NotificationsCenter';
 import { useAuth } from '@/app/AuthContext';
+
+const BUILD_HREF = '/dashboard/projects/lc79-epr042gp';
 
 interface DashboardHeaderProps {
   onMenuClick: () => void;
@@ -24,12 +25,15 @@ const DashboardHeader = ({ onMenuClick }: DashboardHeaderProps) => {
         <Menu className="h-5 w-5" />
       </button>
       <div className="flex-1 flex justify-center max-w-xl mx-auto">
-        <UniversalSearch />
+        <Link
+          href={BUILD_HREF}
+          className="text-sm font-medium text-[var(--shark)] hover:text-[var(--primary)] transition-colors truncate px-2"
+        >
+          LC79 · EPR042GP · Cobra Fire
+        </Link>
       </div>
       <div className="flex items-center gap-3">
         <ClockInOut />
-        <div className="h-5 w-px bg-[var(--border-light)]" />
-        <NotificationsCenter />
         <div
           className="w-8 h-8 rounded-full bg-[var(--athens-gray)] flex items-center justify-center text-sm font-semibold text-[var(--shark)]"
           aria-hidden

@@ -24,12 +24,7 @@ export default function Home() {
       setError('Wrong PIN for this person.');
       return;
     }
-    const user = mockUsers.find((u) => u.id === userId);
-    if (user?.role === 'Boss') {
-      router.push('/dashboard');
-    } else {
-      router.push('/dashboard/projects');
-    }
+    router.push('/dashboard');
   };
 
   return (

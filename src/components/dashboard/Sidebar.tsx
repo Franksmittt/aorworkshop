@@ -2,12 +2,12 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import {
-  Home, Car, Package, MessageSquare, Settings, X, LogOut, RefreshCw, Calendar,
-} from 'lucide-react';
+import { Home, Car, MessageSquare, Settings, X, LogOut, RefreshCw } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useAuth } from '@/app/AuthContext';
 import { clearWorkshopLocalStorage } from '@/lib/data-service';
+
+const BUILD_HREF = '/dashboard/projects/lc79-epr042gp';
 
 interface SidebarProps {
   isOpen: boolean;
@@ -19,25 +19,25 @@ const Sidebar = ({ isOpen, onClose }: SidebarProps) => {
   const { user, logout } = useAuth();
 
   const allNavItems = [
-    { name: 'Dashboard', href: '/dashboard', icon: Home, roles: ['Boss', 'Staff'] },
-    { name: 'Jobs', href: '/dashboard/projects', icon: Car, roles: ['Boss', 'Staff'] },
-    { name: 'Calendar', href: '/dashboard/calendar', icon: Calendar, roles: ['Boss', 'Staff'] },
-    { name: 'Media & Photos', href: '/dashboard/media', icon: MessageSquare, roles: ['Boss', 'Staff'] },
-    { name: 'Inventory', href: '/dashboard/inventory', icon: Package, roles: ['Boss'] },
-    { name: 'Settings', href: '/dashboard/settings', icon: Settings, roles: ['Boss', 'Staff'] },
+    { name: 'Home', href: '/dashboard', icon: Home, roles: ['Boss', 'Staff'] as const },
+    { name: 'LC79 build', href: BUILD_HREF, icon: Car, roles: ['Boss', 'Staff'] as const },
+    { name: 'Media & Photos', href: '/dashboard/media', icon: MessageSquare, roles: ['Boss', 'Staff'] as const },
+    { name: 'Settings', href: '/dashboard/settings', icon: Settings, roles: ['Boss', 'Staff'] as const },
   ];
 
   const navItems = allNavItems.filter((item) => user?.role && item.roles.includes(user.role));
 
   const handleResetData = () => {
-    if (confirm('Reset all workshop data in this browser and reload default jobs, users, and technicians?')) {
+    if (confirm('Clear saved data in this browser and reload the default LC79 job?')) {
       clearWorkshopLocalStorage();
       window.location.reload();
     }
   };
 
-  const isActive = (href: string) =>
-    pathname === href || (pathname.startsWith(href) && href !== '/dashboard');
+  const isActive = (href: string) => {
+    if (href === '/dashboard') return pathname === '/dashboard';
+    return pathname === href || pathname.startsWith(`${href}/`);
+  };
 
   const SidebarContent = () => (
     <div className="w-[260px] flex flex-col h-full bg-white border-r border-[var(--border-light)] shadow-[var(--shadow-sm)]">
@@ -82,7 +82,7 @@ const Sidebar = ({ isOpen, onClose }: SidebarProps) => {
           className="flex w-full items-center gap-3 px-3 py-2.5 rounded-[var(--radius-md)] text-[15px] font-medium text-[var(--system-gray)] hover:bg-[var(--athens-gray)] hover:text-[var(--shark)] transition-colors"
         >
           <RefreshCw className="h-5 w-5 shrink-0" />
-          Reset Mock Data
+          Reset browser data
         </button>
         <button
           onClick={logout}

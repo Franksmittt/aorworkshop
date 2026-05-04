@@ -1,6 +1,19 @@
 // [path]: lib/utils.ts
 
-import { Project } from './types';
+import { Project, SubTask } from './types';
+
+/** Earned share of the job (0 … task.progressWeight) for one subtask. */
+export function taskProgressEarned(task: SubTask): number {
+  const w = task.progressWeight;
+  if (w == null || w <= 0) return 0;
+  if (task.status === 'Completed') return w;
+  if (task.status === 'In Progress') {
+    const f = task.progressFraction;
+    if (f == null || f <= 0) return 0;
+    return w * Math.min(1, Math.max(0, f));
+  }
+  return 0;
+}
 
 export const calculateOverallProgress = (project: Project | null): number => {
   if (!project?.categories?.length) return 0;
@@ -13,9 +26,7 @@ export const calculateOverallProgress = (project: Project | null): number => {
       const w = task.progressWeight;
       if (w != null && w > 0) {
         weightedTotal += w;
-        if (task.status === 'Completed') {
-          weightedDone += w;
-        }
+        weightedDone += taskProgressEarned(task);
       }
     }
   }

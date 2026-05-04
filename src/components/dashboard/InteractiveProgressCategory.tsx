@@ -6,6 +6,7 @@ import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ChevronDown, CheckCircle2, Circle, Clock, Construction, ShieldCheck, ShieldAlert, PlusCircle, Wrench } from 'lucide-react';
 import { Category, SubTask, Part } from '@/lib/types';
+import { taskProgressEarned } from '@/lib/utils';
 import ProgressBar from '../ui/ProgressBar';
 import Button from '../ui/Button';
 
@@ -29,10 +30,7 @@ const InteractiveProgressCategory = ({
   const totalTasks = category.subTasks.length;
 
   const weightedTotal = category.subTasks.reduce((acc, t) => acc + (t.progressWeight ?? 0), 0);
-  const weightedDone = category.subTasks.reduce(
-    (acc, t) => acc + (t.status === 'Completed' ? (t.progressWeight ?? 0) : 0),
-    0,
-  );
+  const weightedDone = category.subTasks.reduce((acc, t) => acc + taskProgressEarned(t), 0);
   const categoryProgress =
     weightedTotal > 0 ? (weightedDone / weightedTotal) * 100 : totalTasks > 0 ? (completedTasks / totalTasks) * 100 : 0;
 
@@ -133,7 +131,13 @@ const InteractiveProgressCategory = ({
                           {task.name}
                           {task.progressWeight != null && task.progressWeight > 0 && (
                             <span className="ml-2 shrink-0 text-xs font-semibold text-amber-300/90">
-                              ({task.progressWeight}% of job)
+                              ({task.progressWeight}% of job
+                              {task.status === 'In Progress' &&
+                                task.progressFraction != null &&
+                                task.progressFraction > 0 &&
+                                task.progressFraction < 1 &&
+                                ` · ${Math.round(task.progressFraction * 100)}% of this step`}
+                              )
                             </span>
                           )}
                         </span>

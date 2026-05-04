@@ -123,6 +123,8 @@ export interface SubTask {
   priority: 'Low' | 'Normal' | 'High' | 'Urgent';
   /** Whole-job share (all tasks should sum to 100). Used for overall progress bar. */
   progressWeight?: number;
+  /** When status is In progress: share of this task’s weight to count (0–1). E.g. 0.5 = half of this step done. */
+  progressFraction?: number;
   assignedTo?: Technician['id'];
   requiresClientApproval?: boolean;
   internalNotes?: InternalTaskNote[];
