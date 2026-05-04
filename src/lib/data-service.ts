@@ -7,7 +7,7 @@ import { Project, SubTask, Category, InternalTaskNote, Shift, BreakType, Invento
 import { fullRestorationTemplate, majorServiceTemplate } from './project-templates';
 
 // --- STORAGE KEYS ---
-const PROJECTS_STORAGE_KEY = 'ABSOLUTE_OFFROAD_PROJECTS_V4';
+const PROJECTS_STORAGE_KEY = 'ABSOLUTE_OFFROAD_PROJECTS_V5';
 const SHIFTS_STORAGE_KEY = 'ABSOLUTE_OFFROAD_TIMESHEETS';
 const INVENTORY_STORAGE_KEY = 'ABSOLUTE_OFFROAD_INVENTORY';
 const TEMPLATES_STORAGE_KEY = 'ABSOLUTE_OFFROAD_TEMPLATES';
@@ -24,6 +24,7 @@ export function clearWorkshopLocalStorage(): void {
     SHIFTS_STORAGE_KEY,
     INVENTORY_STORAGE_KEY,
     TEMPLATES_STORAGE_KEY,
+    'ABSOLUTE_OFFROAD_PROJECTS_V4',
     'ABSOLUTE_OFFROAD_PROJECTS_V3',
     'ABSOLUTE_OFFROAD_PROJECTS_V2',
     'ABSOLUTE_OFFROAD_USERS_V2',

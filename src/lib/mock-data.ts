@@ -25,6 +25,24 @@ const buildBookInMedia = (): Media[] =>
 const epr042gpBookInMedia = buildBookInMedia();
 const epr042gpBookInPhotoUrls = epr042gpBookInMedia.map((m) => m.url);
 
+/** 4 May 2026, 13:40 SAST — rear left stripped; fit started */
+const REAR_LEFT_PROGRESS_AT = '2026-05-04T11:40:00.000Z';
+
+const REAR_LEFT_PHOTO_COUNT = 7;
+const rearLeftProgressMedia: Media[] = Array.from({ length: REAR_LEFT_PHOTO_COUNT }, (_, i) => {
+  const n = i + 1;
+  const pad = String(n).padStart(2, '0');
+  return {
+    id: `media-epr042gp-rl-${pad}`,
+    url: `/projects/epr042gp/progress/rear-left-2026-05-04-${pad}.jpeg`,
+    caption: `Rear left — strip & new kit (photo ${n}/${REAR_LEFT_PHOTO_COUNT}) · 4 May 13:40`,
+    category: 'Vehicle',
+    isFeatured: false,
+  };
+});
+
+const epr042gpAllMedia: Media[] = [...epr042gpBookInMedia, ...rearLeftProgressMedia];
+
 export const mockUsers: User[] = [
   { id: 'user-boss', name: 'Jaco', role: 'Boss' },
   { id: 'user-staff-marius', name: 'Marius', role: 'Staff' },
@@ -70,7 +88,7 @@ export const mockProjects: Project[] = [
         imageUrl: epr042gpBookInMedia[0]?.url ?? '',
       },
     ],
-    media: epr042gpBookInMedia,
+    media: epr042gpAllMedia,
     categories: [
       {
         id: 'lc79-stripping',
@@ -81,10 +99,11 @@ export const mockProjects: Project[] = [
           {
             id: 'lc79-s-1',
             name: 'Strip rear suspension (leaf springs, shackles, bushes, old shocks)',
-            status: 'Pending',
+            status: 'In Progress',
             priority: 'High',
             progressWeight: 10,
             estimateHours: 6,
+            startDate: REAR_LEFT_PROGRESS_AT,
           },
           {
             id: 'lc79-s-2',
@@ -121,18 +140,20 @@ export const mockProjects: Project[] = [
           {
             id: 'lc79-f-1',
             name: 'Fit rear leaf springs, shackles & bushes',
-            status: 'Pending',
+            status: 'In Progress',
             priority: 'High',
             progressWeight: 22,
             estimateHours: 10,
+            startDate: REAR_LEFT_PROGRESS_AT,
           },
           {
             id: 'lc79-f-2',
             name: 'Fit rear EFS Elite shocks',
-            status: 'Pending',
+            status: 'In Progress',
             priority: 'High',
             progressWeight: 10,
             estimateHours: 4,
+            startDate: REAR_LEFT_PROGRESS_AT,
           },
           {
             id: 'lc79-f-3',
@@ -170,6 +191,13 @@ export const mockProjects: Project[] = [
       },
     ],
     timeline: [
+      {
+        id: 'tl-epr042gp-2',
+        date: REAR_LEFT_PROGRESS_AT,
+        update:
+          '13:40 — Rear left quarter: OEM rear suspension stripped (leaf pack, shackles, shock hardware). Fitment of new rear-left kit started — rear done in quarters (springs, shackles, EFS Elite shocks). Progress photos added to gallery.',
+        category: 'Progress',
+      },
       {
         id: 'tl-epr042gp-1',
         date: BOOKED_IN,
