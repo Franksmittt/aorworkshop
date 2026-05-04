@@ -1,0 +1,373 @@
+================================================================================
+ABSOLUTE OFFROAD — WORKSHOP PORTAL — COMPLETE PROJECT OVERVIEW
+================================================================================
+Generated for the 4x4 Fitment Centre internal tool. Last updated: 2025.
+
+================================================================================
+1. WHAT THE PROJECT DOES
+================================================================================
+
+Absolute Offroad Workshop Portal is an internal web app for a 4x4 fitment
+centre. It is used only by the boss (Jaco) and staff (Marius, Roelof)—no
+customer-facing login or portal.
+
+Core functions:
+  • Sign in by person (Jaco / Marius / Roelof) — no passwords in this demo
+  • View and manage jobs (projects) — each job is a vehicle in for fitment
+  • Boss: see overview, assign tasks, manage status, financials, inventory
+  • Staff: see “My Tasks”, update task status, add notes, upload photos
+  • Vehicle check-in checklist (mileage, keys, damage, etc.) per job
+  • Internal notes per job (Boss-only or Staff-only visibility)
+  • Time tracking (clock in/out, breaks) for staff
+  • Media uploads: invoices, stock, before/after, completed work
+  • Jobs have categories and sub-tasks, timelines, and financials (invoices)
+
+There is no customer role. Public project URLs (/projects/[id]) redirect to
+the login page.
+
+================================================================================
+2. HOW IT WORKS
+================================================================================
+
+AUTHENTICATION
+  • Client-side only: AuthProvider (React Context) wraps the app
+  • Login: user picks “Jaco (Boss)”, “Marius (Staff)”, or “Roelof (Staff)”
+  • Stored in localStorage under key: ABSOLUTE_OFFROAD_USER
+  • Boss → redirect to /dashboard after login
+  • Staff → redirect to /dashboard/my-tasks after login
+  • Logout clears localStorage and redirects to /
+  • Dashboard routes are protected by DashboardAuthGuard (redirect to / if no user)
+
+DATA & PERSISTENCE
+  • No backend database. Data lives in:
+    - In-memory defaults from src/lib/mock-data.ts (users, projects, technicians)
+    - localStorage for persistence:
+      - ABSOLUTE_OFFROAD_USER (current user)
+      - ABSOLUTE_OFFROAD_PROJECTS (projects/jobs)
+      - ABSOLUTE_OFFROAD_TIMESHEETS, ABSOLUTE_OFFROAD_INVENTORY,
+        ABSOLUTE_OFFROAD_TEMPLATES, ABSOLUTE_OFFROAD_USERS,
+        ABSOLUTE_OFFROAD_TECHNICIANS
+  • src/lib/data-service.ts: getProjects(), getProjectById(), updateProject(),
+    addMediaToProject(), clockIn/clockOut, etc. read/write localStorage and
+    fall back to mock data when empty
+
+ROUTING (Next.js 15 App Router)
+  • / (public) — Login page; pick user to sign in
+  • /projects/[projectId] and /projects/[projectId]/build-book — redirect to /
+  • /dashboard/* — all behind auth; layout has Sidebar + DashboardHeader
+  • Main dashboard: /dashboard (KPIs, blocked, approvals, kanban, live feed, etc.)
+  • Jobs: /dashboard/projects (list/kanban), /dashboard/projects/new,
+    /dashboard/projects/[projectId] (job detail: progress, financials, notes, timeline)
+  • Staff: /dashboard/my-tasks (tasks assigned to current staff)
+  • Other: media, inventory, financials, technicians, schedule, reports,
+    communication-hub, ai-pit-chief, settings, etc.
+
+================================================================================
+3. USERS AND ROLES
+================================================================================
+
+UserRole type: 'Boss' | 'Staff'
+
+MOCK USERS (src/lib/mock-data.ts)
+  • Jaco  — role: Boss   — id: user-boss
+  • Marius — role: Staff  — id: user-staff-marius
+  • Roelof — role: Staff  — id: user-staff-roelof
+
+TECHNICIANS (for task assignment)
+  • Marius — tech id: tech-marius,  userId: user-staff-marius
+  • Roelof — tech id: tech-roelof,  userId: user-staff-roelof
+
+SIDEBAR VISIBILITY
+  • Boss:   Dashboard, Jobs, Assign Tasks, Media & Photos, Inventory, Settings
+  • Staff:  Dashboard, Jobs, My Tasks, Media & Photos, Settings
+  • “Assign Tasks” links to projects (Boss assigns from job detail). “My Tasks”
+    is staff-only and shows tasks assigned to the logged-in staff member.
+
+================================================================================
+4. DESIGN SYSTEM — COLORS, TYPOGRAPHY, LAYOUT, STYLES
+================================================================================
+
+Design is a merged “Apple + Samsung” style: clean neutrals, generous whitespace,
+Samsung Digital Blue for primary actions, Bento-style cards, Inter font.
+
+---------- 4.1 COLORS (CSS variables in src/app/globals.css) ----------
+
+Neutrals (Apple-inspired)
+  --white:           #FFFFFF
+  --black:            #000000
+  --athens-gray:      #F5F5F7   (section backgrounds, secondary surfaces)
+  --shark:            #1D1D1F   (primary text, high contrast)
+  --system-gray:      #8E8E93   (secondary text, captions)
+  --system-gray-2:    #636366
+  --system-gray-3:    #48484A
+  --separator:       #C6C6C8
+  --fill:             #E5E5EA   (hover states, light fill)
+
+Primary (Samsung-inspired)
+  --primary:          #0057B8   (CTAs, links, active nav)
+  --primary-hover:    #004494
+  --primary-deep:     #1428A0   (emphasis)
+
+Semantic
+  --success:          #34C759
+  --warning:          #FF9500
+  --error:            #FF3B30
+
+Borders
+  --border:           #D2D2D7
+  --border-light:     #E8E8ED
+
+---------- 4.2 TYPOGRAPHY ----------
+
+Font family: Inter (Google Font), variable --font-inter, weights 400, 500, 600, 700.
+Fallback: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif.
+
+Body: 17px, line-height 1.47059, letter-spacing -0.022em, weight 400.
+
+Classes / usage:
+  .text-hero, h1    — clamp(2rem, 5vw, 3.5rem), weight 600, tight tracking
+  .text-title, h2   — clamp(1.5rem, 3vw, 2rem), weight 600
+  .text-headline, h3 — 1.25rem, weight 600
+  .text-subhead, h4 — 1.0625rem, weight 600
+  .text-body        — 17px body
+  .text-caption, .text-secondary — 0.875rem, system-gray
+
+---------- 4.3 SPACING & LAYOUT ----------
+
+  --space-unit:    8px
+  --gutter:        24px
+  --gutter-lg:     32px
+  --container-max: 1024px   (main content width)
+  --container-wide: 1280px
+
+Utility classes:
+  .container-content — max-width 1024px, horizontal padding gutter, centred
+  .container-wide    — max-width 1280px, same padding
+
+---------- 4.4 RADIUS (Squircle-friendly) ----------
+
+  --radius-sm:  8px
+  --radius-md:  12px
+  --radius-lg:  16px
+  --radius-xl:  20px
+
+---------- 4.5 SHADOWS ----------
+
+  --shadow-sm:    0 1px 3px rgba(0,0,0,0.06)
+  --shadow-soft:  0 2px 12px + 0 4px 20px (subtle)
+  --shadow-medium — stronger
+  --shadow-large  — modals, dropdowns
+
+---------- 4.6 MOTION ----------
+
+  --ease-apple:    cubic-bezier(0.25, 0.1, 0.25, 1)
+  --ease-samsung: cubic-bezier(0.22, 0.25, 0, 1)
+  --duration-fast:  200ms
+  --duration-normal: 350ms
+  --duration-slow:  500ms
+
+Reduced motion: html scroll-behavior and animations respect prefers-reduced-motion.
+
+---------- 4.7 CARD STYLE ----------
+
+  .card — white bg, border border-light, radius-lg, shadow-sm; on hover:
+         shadow-soft, border a bit darker. Used for KPI tiles, panels, lists.
+
+---------- 4.8 FOCUS ----------
+
+  .focus-ring — focus-visible: 2px outline --primary, offset 2px (accessibility).
+
+================================================================================
+5. LAYOUTS AND PAGE STRUCTURE
+================================================================================
+
+ROOT (src/app/layout.tsx)
+  • HTML + body; Inter font, antialiased, min-h-screen
+  • AuthProvider wraps <main>{children}</main>
+  • Metadata: title "Absolute Offroad | 4x4 Fitment Centre", SEO, OG, Twitter
+
+PUBLIC (src/app/(public)/)
+  • layout.tsx — minimal (no sidebar)
+  • page.tsx — login: title “Absolute Offroad”, subtitle “4x4 Fitment Centre”,
+    card with three buttons (Jaco / Marius / Roelof). Athens-gray background.
+
+DASHBOARD (src/app/(dashboard)/)
+  • layout.tsx — DashboardAuthGuard → TimeTrackingProvider → flex h-screen
+  • Left: Sidebar (260px, white, border-right)
+  • Right: column — DashboardHeader (56px, white, border-bottom), then
+    scrollable main with .container-content and py-8/py-10
+  • Background: athens-gray
+
+SIDEBAR
+  • Logo/text “Absolute Offroad” top
+  • Nav links (Dashboard, Jobs, My Tasks or Assign Tasks, Media & Photos,
+    Inventory for Boss, Settings)
+  • Bottom: Reset Mock Data, Logout
+  • Active link: primary bg, white text. Hover: athens-gray bg.
+
+HEADER
+  • Mobile: menu button to open sidebar
+  • Centre: UniversalSearch (⌘K to open modal)
+  • Right: ClockInOut, divider, NotificationsCenter, user initials avatar
+
+================================================================================
+6. ROUTES (PAGES) SUMMARY
+================================================================================
+
+  /                          — Login (public)
+  /projects/[projectId]      — Redirect to /
+  /projects/[projectId]/build-book — Redirect to /
+
+  /dashboard                 — Main dashboard (KPIs, blocked, approvals, kanban, feed, etc.)
+  /dashboard/projects        — Jobs list + kanban toggle, “New Project”
+  /dashboard/projects/new    — New job form
+  /dashboard/projects/[projectId] — Job detail: header, financials, notes, progress, timeline,
+                                   vehicle checklist, status, delete
+  /dashboard/my-tasks        — Staff: tasks assigned to current user
+  /dashboard/media           — Media gallery / uploads
+  /dashboard/inventory       — Inventory
+  /dashboard/financials      — Financial overview
+  /dashboard/technicians     — Technicians (Marius, Roelof) stats, add/edit/delete
+  /dashboard/schedule        — Schedule view (drag-drop tasks)
+  /dashboard/communication-hub — Message view per project
+  /dashboard/ai-pit-chief    — AI suggestions
+  /dashboard/reports        — Reports
+  /dashboard/performance     — Performance
+  /dashboard/parts          — Parts
+  /dashboard/customers      — Customers (derived from projects)
+  /dashboard/clients        — Client list
+  /dashboard/clients/[clientId] — Client detail
+  /dashboard/workshop       — Workshop view
+  /dashboard/timeline       — Timeline
+  /dashboard/settings       — Settings
+  /dashboard/settings/templates — Templates
+
+================================================================================
+7. KEY COMPONENTS
+================================================================================
+
+UI PRIMITIVES (src/components/ui/)
+  Button       — primary (blue), secondary (gray), outline, ghost; sm/md/lg
+  Input        — form input
+  ProgressBar  — progress display
+  ToggleSwitch — toggle
+  ViewSwitcher — e.g. Kanban vs List
+  ConfirmationModal — confirm/cancel dialog
+
+LAYOUT & NAV
+  Sidebar           — Nav + Absolute Offroad branding + reset/logout
+  DashboardHeader   — Menu, UniversalSearch, ClockInOut, Notifications, avatar
+  Footer            — Copyright, scroll-to-top (used where layout includes it)
+  Header            — Public header (e.g. project pages; some routes redirect)
+
+PROJECT / JOB
+  ProjectHeader         — Job title, progress, edit
+  VehicleChecklistSection — Vehicle check-in summary (mileage, keys, damage, etc.)
+  FinancialsPanel      — Invoices, quoted/paid, mark paid, add invoice
+  MessagingCenter      — Internal notes (BossOnly / StaffOnly), send note
+  MessageView          — Same in communication-hub style view
+  AddTimelineForm      — Add timeline entry
+  ProjectStatusUpdater — Active / Completed / On Hold + hold reason
+  InteractiveProgressCategory — Categories and sub-tasks, assign, status, QA
+  EditProjectModal     — Edit job details
+  AddInvoiceModal, AddPartFromInventoryModal, AddMediaModal
+
+DASHBOARD WIDGETS
+  KeyPerformanceIndicators — KPI cards (Revenue, Utilization, On-Time, Profit)
+  KpiDial                  — Single KPI card (card style, icon, value)
+  PendingApprovals         — Tasks awaiting approval
+  BlockedProjects          — Jobs on hold
+  DashboardKanban          — In-progress tasks by category/column
+  TechnicianLiveFeed       — Staff activity
+  CashFlowGauge            — Cash flow
+  ShipmentsTracker         — Shipments
+  LowStockAlerts           — Low stock
+  UniversalSearch          — ⌘K search (jobs, clients, inventory)
+  NotificationsCenter      — Notifications dropdown
+  ClockInOut               — Clock in/out, break
+  ActionRequiredFeed       — Action items
+
+LISTS & KANBAN
+  ProjectsListView   — Table/list of jobs
+  ProjectsKanbanView — Kanban of jobs by status
+  WorkshopKanban     — Kanban by technician
+  DraggableTaskCard  — Draggable task card
+
+TECHNICIANS
+  TechnicianPerformanceCard — Stats card
+  TechnicianFormModal      — Add/edit technician
+  TechnicianDetailModal    — Detail view
+  TechnicianLiveFeed       — Activity
+
+OTHER
+  Timeline           — List of timeline updates
+  MediaGallery       — Media grid
+  ApprovalCenter     — Approval tasks
+  ClientPendingActions, ClientTaskDetailModal, ClientFinancialsSummary —
+    (legacy names; used internally for job/customer context)
+  AddTimelineForm, AddInvoiceModal, AddPartFromInventoryModal, AddMediaModal
+  ImageUploader
+
+================================================================================
+8. DATA MODELS (src/lib/types.ts) — SUMMARY
+================================================================================
+
+User: id, name, role ('Boss' | 'Staff')
+Technician: id, name, userId, hourlyRate?
+Message: id, author, authorRole, text, visibleTo ('BossOnly'|'StaffOnly'), createdAt
+VehicleChecklist: completedAt?, mileageIn?, fuelLevel?, keysReceived?, damageNoted?,
+                  customerRequests?, photosOnArrival?
+
+Project (Job):
+  id, customerName, vehicleChecklist?, car { make, model, year, vin?, mileageIn?, ... }
+  status: 'Active'|'Completed'|'On Hold', holdReason?
+  createdAt, promisedDate?, categories[], timeline[], media[], messages[]
+  financials: { invoices[], totalQuoted, totalPaid, ... }
+  purchaseOrders?, provenance?
+
+Category: id, name, weight, subTasks[], requiresQa?, owner?
+SubTask: id, name, status, priority, assignedTo?, estimateHours?, actualHours?,
+         startDate?, dueDate?, completedAt?, internalNotes?, parts?, approvals?,
+         beforeImageUrl?, afterImageUrl?, technicianNotes?, etc.
+
+Invoice, Part, PurchaseOrder, InventoryItem, Shift, Break, Approval, etc.
+— see types.ts for full definitions.
+
+================================================================================
+9. TECH STACK
+================================================================================
+
+  • Next.js 15 (App Router), React 19, TypeScript
+  • Tailwind CSS 4 (@tailwindcss/postcss)
+  • Framer Motion (animations)
+  • date-fns (dates)
+  • Recharts (charts)
+  • react-dnd + react-dnd-html5-backend (drag-and-drop, e.g. schedule)
+  • lucide-react (icons)
+  • jsPDF, html2canvas (e.g. build-book / PDF export where used)
+
+Build: npm run build (next build --turbopack)
+Dev:   npm run dev (next dev --turbopack)
+
+================================================================================
+10. KEY FILES (QUICK REFERENCE)
+================================================================================
+
+  src/app/layout.tsx              — Root layout, Inter, AuthProvider
+  src/app/globals.css              — Design tokens, typography, .card, utilities
+  src/app/AuthContext.tsx          — Login/logout, user state, localStorage key
+  src/app/(public)/page.tsx       — Login page
+  src/app/(dashboard)/layout.tsx   — Dashboard layout (sidebar + header + main)
+  src/app/(dashboard)/DashboardAuthGuard.tsx — Protects dashboard routes
+  src/app/(dashboard)/TimeTrackingContext.tsx — Clock in/out, breaks
+  src/lib/types.ts                — All TypeScript interfaces and types
+  src/lib/mock-data.ts            — mockUsers, mockTechnicians, mockProjects
+  src/lib/data-service.ts         — getProjects, updateProject, clockIn, etc.
+  src/lib/utils.ts                — Helpers (e.g. calculateOverallProgress)
+  src/components/dashboard/Sidebar.tsx
+  src/components/dashboard/DashboardHeader.tsx
+  src/components/ui/Button.tsx
+
+================================================================================
+END OF PROJECT OVERVIEW
+================================================================================

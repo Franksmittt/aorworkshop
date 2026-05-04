@@ -1,0 +1,38 @@
+// [path]: lib/utils.ts
+
+import { Project } from './types';
+
+export const calculateOverallProgress = (project: Project | null): number => {
+  if (!project?.categories?.length) return 0;
+
+  let weightedDone = 0;
+  let weightedTotal = 0;
+
+  for (const category of project.categories) {
+    for (const task of category.subTasks) {
+      const w = task.progressWeight;
+      if (w != null && w > 0) {
+        weightedTotal += w;
+        if (task.status === 'Completed') {
+          weightedDone += w;
+        }
+      }
+    }
+  }
+
+  if (weightedTotal > 0) {
+    return (weightedDone / weightedTotal) * 100;
+  }
+
+  const totalProgress = project.categories.reduce((acc, category) => {
+    const completedTasks = category.subTasks.filter((t) => t.status === 'Completed').length;
+    const categoryProgress = category.subTasks.length > 0 ? completedTasks / category.subTasks.length : 0;
+    return acc + categoryProgress * category.weight;
+  }, 0);
+
+  const totalWeight = project.categories.reduce((acc, category) => acc + category.weight, 0);
+
+  if (totalWeight === 0) return 0;
+
+  return (totalProgress / totalWeight) * 100;
+};
